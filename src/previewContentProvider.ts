@@ -58,6 +58,11 @@ export default class PreviewContentProvider implements vscode.TextDocumentConten
             let html = mjml2html(vscode.window.activeTextEditor.document.getText(), { level: 'skip', disableMinify: true });
 
             if (html.html) {
+
+                const documentAbsoluteDir = path.dirname(vscode.window.activeTextEditor.document.uri.fsPath)
+                //replace relative file links with absolute, to correctly render images!
+                html.html = html.html.replace(/file:\/\/(?!\/)/g,'file://'+documentAbsoluteDir+'/')
+
                 return html.html;
             }
         }
