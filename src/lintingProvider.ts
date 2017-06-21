@@ -9,7 +9,7 @@ export default class MJMLLintingProvider {
     private command: vscode.Disposable;
     private diagnosticCollection: vscode.DiagnosticCollection;
 
-    public activate(subscriptions: vscode.Disposable[]): void {
+    constructor(subscriptions: vscode.Disposable[]) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
 
         vscode.workspace.onDidOpenTextDocument(this.doMJMllint, this, subscriptions);

@@ -2,7 +2,7 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "0.0.1",
+    "version": "0.0.4",
     "publisher": "attilabuti",
     "license": "MIT",
     "readme": "README.md",
@@ -38,8 +38,8 @@
         "vscode": "^1.6.0"
     },
     "activationEvents": [
-        "onCommand:mjml.preview",
-        "onCommand:mjml.generateHTML",
+        "onCommand:mjml.previewToSide",
+        "onCommand:mjml.exportHTML",
         "onLanguage:mjml"
     ],
     "main": "./out/extension",
@@ -52,38 +52,61 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable/disable MJML linter (requires restart)"
+                },
+                "mjml.updateWhenTyping": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Update preview when typing"
+                },
+                "mjml.preserveFocus": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Preserve focus of Text Editor after preview open"
                 }
             }
         },
-        "commands": [{
-            "command": "mjml.preview",
-            "title": "Open Preview",
-            "category": "MJML",
-            "icon": {
-                "light": "./media/preview_icon_light.svg",
-                "dark": "./media/preview_icon_dark.svg"
+        "commands": [
+            {
+                "command": "mjml.previewToSide",
+                "title": "Open Preview to the Side",
+                "category": "MJML",
+                "icon": {
+                    "light": "./media/preview_icon_light.svg",
+                    "dark": "./media/preview_icon_dark.svg"
+                }
+            },
+            {
+                "command": "mjml.exportHTML",
+                "title": "Export HTML",
+                "category": "MJML"
             }
-        }, {
-            "command": "mjml.generateHTML",
-            "title": "Generate HTML",
-            "category": "MJML"
-        }],
-        "languages": [{
-            "id": "mjml",
-            "extensions": [".mjml"],
-            "aliases": ["mjml"]
-        }],
+        ],
+        "languages": [
+            {
+                "id": "mjml",
+                "extensions": [
+                    ".mjml"
+                ],
+                "aliases": [
+                    "mjml"
+                ]
+            }
+        ],
         "menus": {
-            "editor/title": [{
-                "when": "editorLangId == mjml",
-                "command": "mjml.preview",
-                "group": "navigation"
-            }],
-            "explorer/context": [{
-                "when": "editorLangId == mjml",
-                "command": "mjml.preview",
-                "group": "navigation"
-            }]
+            "editor/title": [
+                {
+                    "when": "editorLangId == mjml",
+                    "command": "mjml.previewToSide",
+                    "group": "navigation"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "editorLangId == mjml",
+                    "command": "mjml.previewToSide",
+                    "group": "navigation"
+                }
+            ]
         }
     },
     "scripts": {
@@ -97,8 +120,8 @@
         "vscode": "^1.0.3",
         "@types/node": "*"
     },
-
     "dependencies": {
-        "mjml": "^3.3.2"
+        "file-url": "^2.0.2",
+        "mjml": "^3.3.3"
     }
 }
