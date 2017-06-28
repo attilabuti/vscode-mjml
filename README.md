@@ -8,6 +8,7 @@ MJML preview, lint, compile for Visual Studio Code.
 * Live preview for MJML files. Preview updates as you type. Preview based on [html-preview-vscode](https://github.com/tht13/html-preview-vscode).
 * Inline errors (squiggle underlines). Linter based on [atom-linter-mjml](https://github.com/mjmlio/atom-linter-mjml).
 * Export HTML file from MJML.
+* Take a screenshot of the rendered MJML document.
 
 ## It looks like this
 
@@ -26,18 +27,38 @@ Start command palette (with `Ctrl+Shift+P` or `F1`) and start typing `MJML`.
 ## Available commands
 
 The following command is available:
-* **MJML: Open Preview to the Side** Opens a preview in a column alongside the current document.
 * **MJML: Export HTML** Export HTML file from MJML.
+* **MJML: Open Preview to the Side** Opens a preview in a column alongside the current document.
+* **MJML: Screenshot** Take a screenshot of the rendered MJML document, and save it as a file.
 
 ## Settings
 
 | Name | Default | Description |
 | --- | --- | --- |
 | `mjml.lintEnable` | `true` | Enable/disable MJML linter (requires restart). |
+| `mjml.lintWhenTyping` | `true` | Whether the linter is run on type or on save. |
 | `mjml.updateWhenTyping` | `true` | Update preview when typing. |
 | `mjml.preserveFocus` | `true` | Preserve focus of Text Editor after preview open. |
+| `mjml.minifyHtmlOutput` | `true` | Minify HTML output. |
+| `mjml.beautifyHtmlOutput` | `false` | Beautify HTML output. (Works when `mjml.minifyHtmlOutput` aren't enabled.) |
+| `mjml.screenshotWidth` | `650` | Screenshot width. |
+| `mjml.screenshotType` | `jpg` | Screenshot type. Possible values are 'png', 'jpg', and 'jpeg'. |
+| `mjml.screenshotQuality` | `75` | Screenshot quality. |
 
 ## Change Log
+
+### [0.0.5] (2017-06-28)
+* [#3](https://github.com/attilabuti/vscode-mjml/issues/3): fixed preview issue.
+* [new] Configuration property `mjml.lintWhenTyping`: whether the linter is run on type or on save.
+* [new] Configuration property `mjml.minifyHtmlOutput`: minify HTML output.
+* [new] Configuration property `mjml.beautifyHtmlOutput`: beautify HTML output. (Works when `mjml.minifyHtmlOutput` aren't enabled.)
+* [new] Configuration property `mjml.screenshotWidth`: screenshot width.
+* [new] Configuration property `mjml.screenshotType`: screenshot type. Possible values are 'png', 'jpg', and 'jpeg'.
+* [new] Configuration property `mjml.screenshotQuality`: screenshot quality.
+* [new] `MJML: Screenshot`: Take a screenshot of the rendered MJML document, and save it as a file.
+* Fixed background-url path issue.
+* Lint when a MJML file is opened.
+* Some other small improvements.
 
 ### [0.0.4] (2017-06-21)
 * [#1](https://github.com/attilabuti/vscode-mjml/pull/1): fixed image path issue.
@@ -46,6 +67,7 @@ The following command is available:
 * [new] Configuration property `mjml.updateWhenTyping`: update preview when typing.
 * `MJML: Open Preview` was renamed to `MJML: Open Preview to the Side`
 * `MJML: Generate HTML` was renamed to `MJML: Export HTML`
+* MJML 3.3.3
 
 ### [0.0.2] (2017-05-08)
 * Some fixes.

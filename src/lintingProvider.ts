@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 
 import { documentParser, MJMLValidator } from 'mjml';
 
+import helper from './helper';
+
 export default class MJMLLintingProvider {
 
     private command: vscode.Disposable;
@@ -12,12 +14,24 @@ export default class MJMLLintingProvider {
     constructor(subscriptions: vscode.Disposable[]) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
 
-        vscode.workspace.onDidOpenTextDocument(this.doMJMllint, this, subscriptions);
-        vscode.workspace.onDidCloseTextDocument((textDocument) => {
-            this.diagnosticCollection.delete(textDocument.uri);
-        }, null, subscriptions);
+        vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor) => {
+            if (helper.isMJMLFile(editor.document)) {
+                this.doMJMllint(editor.document);
+            }
+        }, this, subscriptions);
 
+        vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
+            if (vscode.workspace.getConfiguration('mjml').lintWhenTyping) {
+                this.doMJMllint(event.document);
+            }
+        }, this, subscriptions);
+
+        vscode.workspace.onDidOpenTextDocument(this.doMJMllint, this, subscriptions);
         vscode.workspace.onDidSaveTextDocument(this.doMJMllint, this, subscriptions);
+
+        vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
+            this.diagnosticCollection.delete(document.uri);
+        }, null, subscriptions);
 
         // Lint all open mjml documents
         vscode.workspace.textDocuments.forEach(this.doMJMllint, this);

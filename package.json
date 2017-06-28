@@ -2,7 +2,7 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "publisher": "attilabuti",
     "license": "MIT",
     "readme": "README.md",
@@ -40,6 +40,7 @@
     "activationEvents": [
         "onCommand:mjml.previewToSide",
         "onCommand:mjml.exportHTML",
+        "onCommand:mjml.screenshot",
         "onLanguage:mjml"
     ],
     "main": "./out/extension",
@@ -51,17 +52,47 @@
                 "mjml.lintEnable": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Enable/disable MJML linter (requires restart)"
+                    "description": "Enable/disable MJML linter (requires restart)."
+                },
+                "mjml.lintWhenTyping": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the linter is run on type or on save."
                 },
                 "mjml.updateWhenTyping": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Update preview when typing"
+                    "description": "Update preview when typing."
                 },
                 "mjml.preserveFocus": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Preserve focus of Text Editor after preview open"
+                    "description": "Preserve focus of Text Editor after preview open."
+                },
+                "mjml.minifyHtmlOutput": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Minify HTML output."
+                },
+                "mjml.beautifyHtmlOutput": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Beautify HTML output. (Works when `mjml.minifyHtmlOutput` aren't enabled.)"
+                },
+                "mjml.screenshotWidth": {
+                    "type": "number",
+                    "default": 650,
+                    "description": "Screenshot width."
+                },
+                "mjml.screenshotType": {
+                    "type": "string",
+                    "default": "jpg",
+                    "description": "Screenshot type. Possible values are 'png', 'jpg', and 'jpeg'."
+                },
+                "mjml.screenshotQuality": {
+                    "type": "number",
+                    "default": 75,
+                    "description": "Screenshot quality."
                 }
             }
         },
@@ -78,6 +109,11 @@
             {
                 "command": "mjml.exportHTML",
                 "title": "Export HTML",
+                "category": "MJML"
+            },
+            {
+                "command": "mjml.screenshot",
+                "title": "Screenshot",
                 "category": "MJML"
             }
         ],
@@ -122,6 +158,7 @@
     },
     "dependencies": {
         "file-url": "^2.0.2",
-        "mjml": "^3.3.3"
+        "mjml": "^3.3.3",
+        "webshot": "^0.18.0"
     }
 }

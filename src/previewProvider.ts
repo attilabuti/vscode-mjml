@@ -1,10 +1,8 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fileUrl from 'file-url';
 
-import { mjml2html } from 'mjml';
+import helper from './helper';
 
 export default class PreviewManager {
 
@@ -72,19 +70,18 @@ class MJMLView {
     }
 
     private registerEvents(subscriptions: vscode.Disposable[]): void {
-
         let lastEditor: any = '';
 
         subscriptions.push(
             vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
-                if (this.isMJMLFile(document)) {
+                if (helper.isMJMLFile(document)) {
                     this.provider.update(this.previewUri);
                 }
             }),
 
             vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
                 if (vscode.workspace.getConfiguration('mjml').updateWhenTyping) {
-                    if (this.isMJMLFile(event.document)) {
+                    if (helper.isMJMLFile(event.document)) {
                         this.provider.update(this.previewUri);
                     }
                 }
@@ -92,7 +89,7 @@ class MJMLView {
 
             vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor) => {
                 if (this.document.uri === editor.document.uri) {
-                    if (this.isMJMLFile(editor.document)) {
+                    if (helper.isMJMLFile(editor.document)) {
                         lastEditor = editor.document.uri;
                         this.provider.update(this.previewUri);
                     }
@@ -128,10 +125,6 @@ class MJMLView {
         return vscode.Uri.parse('mjml-preview://authority/mjml-preview/sidebyside/');
     }
 
-    private isMJMLFile(document: vscode.TextDocument): boolean {
-        return document.languageId === 'mjml' && document.uri.scheme !== 'mjml-preview';
-    }
-
 }
 
 class PreviewContentProvider implements vscode.TextDocumentContentProvider {
@@ -148,7 +141,7 @@ class PreviewContentProvider implements vscode.TextDocumentContentProvider {
     }
 
     public update(uri: vscode.Uri): void {
-        if (uri.fsPath === '\\mjml-preview\\sidebyside\\') {
+        if (/mjml-preview/.test(uri.fsPath) && /sidebyside/.test(uri.fsPath)) {
             if (vscode.window.activeTextEditor.document.fileName == this.document.fileName) {
                 this._onDidChange.fire(uri);
             }
@@ -157,38 +150,20 @@ class PreviewContentProvider implements vscode.TextDocumentContentProvider {
 
     public provideTextDocumentContent(uri: vscode.Uri): string {
         if (this.document.languageId !== 'mjml') {
-            return this.error("Active editor doesn't show a MJML document.");
+            return this.error('Active editor doesn\'t show a MJML document.');
         }
 
         return this.renderMJML();
     }
 
-    private fixLinks(text): string {
-        return text.replace(
-            new RegExp("((?:src|href)=[\'\"])((?!http|\\/).*?)([\'\"])", "gmi"),
-            (subString: string, p1: string, p2: string, p3: string): string => {
-                return [p1, fileUrl(path.join(path.dirname(vscode.window.activeTextEditor.document.uri.fsPath), p2)), p3].join("");
-            }
-        );
-    }
-
     private renderMJML(): string {
-        try {
-            let html = mjml2html(this.document.getText(), {
-                level: 'skip',
-                disableMinify: true,
-                filePath: vscode.window.activeTextEditor.document.uri.fsPath
-            });
+        let html = helper.renderMJML(this.document.getText(), true, false);
 
-            if (html.html) {
-                return this.fixLinks(html.html);
-            }
-        }
-        catch (e) {
-            console.log(e)
+        if (html) {
+            return helper.fixLinks(html);
         }
 
-        return this.error("Active editor doesn't show a MJML document.");
+        return this.error('Active editor doesn\'t show a MJML document.');
     }
 
     private error(error: string): string {
