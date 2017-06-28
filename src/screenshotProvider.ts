@@ -9,12 +9,22 @@ import helper from './helper';
 
 export default class Screenshot {
 
-	constructor(context: vscode.ExtensionContext) {
+	constructor(context: vscode.ExtensionContext, processPlatform, phantomJsPlatform, phantomJSBuilt) {
         let disposable = vscode.commands.registerCommand('mjml.screenshot', () => {
-            this.takeScreenshot();
+            if (phantomJsPlatform != processPlatform && phantomJSBuilt !== null) {
+                if (phantomJSBuilt) {
+                    vscode.window.showInformationMessage('MJML\'s been updated. Please restart VSCode in order to continue using MJML.');
+                }
+                else {
+                    vscode.window.showWarningMessage('MJML couldn\'t build the propper version of PhantomJS. Restart VSCode in order to try it again.');
+                }
+            }
+            else {
+                this.takeScreenshot();
+            }
         });
 
-        context.subscriptions.push(disposable)
+        context.subscriptions.push(disposable);
 	}
 
     private takeScreenshot(): void {

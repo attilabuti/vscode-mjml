@@ -47,6 +47,9 @@ The following command is available:
 
 ## Change Log
 
+### [0.0.6] (2017-06-28)
+* Added PhantomJS-rebuild functionallity in order to build PhantomJS for the propper OS. Based on [MarkdownConverter](https://github.com/manuth/MarkdownConverter).
+
 ### [0.0.5] (2017-06-28)
 * [#3](https://github.com/attilabuti/vscode-mjml/issues/3): fixed preview issue.
 * [new] Configuration property `mjml.lintWhenTyping`: whether the linter is run on type or on save.
