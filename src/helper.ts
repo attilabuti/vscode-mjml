@@ -14,7 +14,8 @@ export default class Helper {
                 level: 'skip',
                 minify: minify,
                 beautify: beautify,
-                filePath: vscode.window.activeTextEditor.document.uri.fsPath
+                filePath: vscode.window.activeTextEditor.document.uri.fsPath,
+                cwd: vscode.workspace.rootPath
             });
 
             if (html.html) {
