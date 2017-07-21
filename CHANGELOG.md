@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to the "mjml" extension will be documented in this file.
 
+### [0.0.7] (2017-07-21)
+* [#5](https://github.com/attilabuti/vscode-mjml/issues/5): .mjmlconfig is now supported.
+* [new] Configuration property `mjml.mailjetAPIKey`: Mailjet API Key.
+* [new] Configuration property `mjml.mailjetAPISecret`: Mailjet API Secret.
+* [new] Configuration property `mjml.mailSender`: Sender email address. (Mailjet: must be a verified sender.)
+* [new] Configuration property `mjml.mailFromName`: Sender name.
+* [new] Configuration property `mjml.mailSubject`: Email subject.
+* [new] Configuration property `mjml.mailRecipients`: Comma separated list of recipients email addresses.
+* [new] `MJML: Copy HTML`: Copy the result HTML to clipboard.
+* [new] `MJML: Send Email`: Send email with Mailjet.
+* Some other small improvements.
+
 ### [0.0.6] (2017-06-28)
 * Added PhantomJS-rebuild functionallity in order to build PhantomJS for the propper OS. Based on [MarkdownConverter](https://github.com/manuth/MarkdownConverter).
 

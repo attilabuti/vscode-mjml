@@ -2,7 +2,7 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "publisher": "attilabuti",
     "license": "MIT",
     "readme": "README.md",
@@ -40,7 +40,9 @@
     "activationEvents": [
         "onCommand:mjml.previewToSide",
         "onCommand:mjml.exportHTML",
+        "onCommand:mjml.copyHTML",
         "onCommand:mjml.screenshot",
+        "onCommand:mjml.sendEmail",
         "onLanguage:mjml"
     ],
     "main": "./out/extension",
@@ -93,6 +95,36 @@
                     "type": "number",
                     "default": 75,
                     "description": "Screenshot quality."
+                },
+                "mjml.mailjetAPIKey": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Mailjet API Key."
+                },
+                "mjml.mailjetAPISecret": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Mailjet API Secret."
+                },
+                "mjml.mailSender": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Sender email address. (Mailjet: must be a verified sender.)"
+                },
+                "mjml.mailFromName": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Sender name."
+                },
+                "mjml.mailSubject": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Email subject."
+                },
+                "mjml.mailRecipients": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Comma separated list of recipients email addresses."
                 }
             }
         },
@@ -112,8 +144,18 @@
                 "category": "MJML"
             },
             {
+                "command": "mjml.copyHTML",
+                "title": "Copy HTML",
+                "category": "MJML"
+            },
+            {
                 "command": "mjml.screenshot",
                 "title": "Screenshot",
+                "category": "MJML"
+            },
+            {
+                "command": "mjml.sendEmail",
+                "title": "Send Email",
                 "category": "MJML"
             }
         ],
@@ -135,13 +177,6 @@
                     "command": "mjml.previewToSide",
                     "group": "navigation"
                 }
-            ],
-            "explorer/context": [
-                {
-                    "when": "editorLangId == mjml",
-                    "command": "mjml.previewToSide",
-                    "group": "navigation"
-                }
             ]
         }
     },
@@ -157,8 +192,10 @@
         "@types/node": "*"
     },
     "dependencies": {
+        "copy-paste": "^1.3.0",
         "file-url": "^2.0.2",
         "mjml": "^3.3.3",
-        "webshot": "^0.18.0"
+        "webshot": "^0.18.0",
+        "node-mailjet": "^3.1.0"
     }
 }

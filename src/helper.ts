@@ -15,7 +15,7 @@ export default class Helper {
                 minify: minify,
                 beautify: beautify,
                 filePath: vscode.window.activeTextEditor.document.uri.fsPath,
-                cwd: vscode.workspace.rootPath
+                cwd: this.getCWD()
             });
 
             if (html.html) {
@@ -24,6 +24,15 @@ export default class Helper {
         }
         catch (e) {
             return;
+        }
+    }
+
+    static getCWD(): string {
+        if (vscode.workspace.rootPath) {
+            return vscode.workspace.rootPath;
+        }
+        else {
+            return path.parse(vscode.window.activeTextEditor.document.uri.fsPath).dir;
         }
     }
 

@@ -9,9 +9,9 @@ import helper from './helper';
 
 export default class Screenshot {
 
-	constructor(context: vscode.ExtensionContext, processPlatform, phantomJsPlatform, phantomJSBuilt) {
+    constructor(context: vscode.ExtensionContext, processPlatform, phantomJsPlatform, phantomJSBuilt) {
         let disposable = vscode.commands.registerCommand('mjml.screenshot', () => {
-            if (phantomJsPlatform != processPlatform && phantomJSBuilt !== null) {
+            if (phantomJsPlatform != processPlatform || phantomJSBuilt !== null) {
                 if (phantomJSBuilt) {
                     vscode.window.showInformationMessage('MJML\'s been updated. Please restart VSCode in order to continue using MJML.');
                 }
@@ -25,13 +25,13 @@ export default class Screenshot {
         });
 
         context.subscriptions.push(disposable);
-	}
+    }
 
     private takeScreenshot(): void {
-		if (!(helper.isMJMLFile(vscode.window.activeTextEditor.document))) {
-			vscode.window.showWarningMessage('This is not a MJML document!');
-			return;
-		}
+        if (!(helper.isMJMLFile(vscode.window.activeTextEditor.document))) {
+            vscode.window.showWarningMessage('This is not a MJML document!');
+            return;
+        }
 
         let defaultWidth = vscode.workspace.getConfiguration('mjml').screenshotWidth;
         let defaultFileName = path.basename(vscode.window.activeTextEditor.document.uri.fsPath).replace(/\.[^\.]+$/, '');
@@ -43,14 +43,14 @@ export default class Screenshot {
 
         vscode.window.showInputBox({ placeHolder: 'Width (' + defaultWidth + 'px)' }).then((width) => {
             vscode.window.showInputBox({ placeHolder: 'File name (' + defaultFileName + '.' + screenshotType + ')' }).then((fileName) => {
-				if (fileName) {
-					fileName = fileName.replace(/\.[^\.]+$/, '');
-				}
-				else {
-					fileName = defaultFileName;
-				}
+                if (fileName) {
+                    fileName = fileName.replace(/\.[^\.]+$/, '');
+                }
+                else {
+                    fileName = defaultFileName;
+                }
 
-				let file = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, '../' + fileName + '.' + screenshotType);
+                let file = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, '../' + fileName + '.' + screenshotType);
 
                 width = width.replace(/[^0-9\.]+/g, '');
                 if (!width || Number.isNaN(parseInt(width))) {
@@ -69,7 +69,7 @@ export default class Screenshot {
                     quality: vscode.workspace.getConfiguration('mjml').screenshotQuality,
                     siteType: 'html',
                     streamType: screenshotType
-                }, function(err) {
+                }, (err) => {
                     vscode.window.showInformationMessage('Successfully saved screenshot ' + fileName + '.' + screenshotType);
                 });
             });

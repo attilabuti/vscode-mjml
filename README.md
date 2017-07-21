@@ -8,7 +8,9 @@ MJML preview, lint, compile for Visual Studio Code.
 * Live preview for MJML files. Preview updates as you type. Preview based on [html-preview-vscode](https://github.com/tht13/html-preview-vscode).
 * Inline errors (squiggle underlines). Linter based on [atom-linter-mjml](https://github.com/mjmlio/atom-linter-mjml).
 * Export HTML file from MJML.
+* Copy the result HTML to clipboard.
 * Take a screenshot of the rendered MJML document.
+* Send email with Mailjet.
 
 ## It looks like this
 
@@ -30,6 +32,8 @@ The following command is available:
 * **MJML: Export HTML** Export HTML file from MJML.
 * **MJML: Open Preview to the Side** Opens a preview in a column alongside the current document.
 * **MJML: Screenshot** Take a screenshot of the rendered MJML document, and save it as a file.
+* **MJML: Copy HTML** Copy the result HTML to clipboard.
+* **MJML: Send Email** Send email with Mailjet.
 
 ## Settings
 
@@ -44,8 +48,26 @@ The following command is available:
 | `mjml.screenshotWidth` | `650` | Screenshot width. |
 | `mjml.screenshotType` | `jpg` | Screenshot type. Possible values are 'png', 'jpg', and 'jpeg'. |
 | `mjml.screenshotQuality` | `75` | Screenshot quality. |
+| `mjml.mailjetAPIKey` | ` ` | Mailjet API Key. |
+| `mjml.mailjetAPISecret` | ` ` | Mailjet API Secret. |
+| `mjml.mailSender` | ` ` | Sender email address. (Mailjet: must be a verified sender.) |
+| `mjml.mailFromName` | ` ` | Sender name. |
+| `mjml.mailSubject` | ` ` | Email subject. |
+| `mjml.mailRecipients` | ` ` | Comma separated list of recipients email addresses. |
 
 ## Change Log
+
+### [0.0.7] (2017-07-21)
+* [#5](https://github.com/attilabuti/vscode-mjml/issues/5): .mjmlconfig is now supported.
+* [new] Configuration property `mjml.mailjetAPIKey`: Mailjet API Key.
+* [new] Configuration property `mjml.mailjetAPISecret`: Mailjet API Secret.
+* [new] Configuration property `mjml.mailSender`: Sender email address. (Mailjet: must be a verified sender.)
+* [new] Configuration property `mjml.mailFromName`: Sender name.
+* [new] Configuration property `mjml.mailSubject`: Email subject.
+* [new] Configuration property `mjml.mailRecipients`: Comma separated list of recipients email addresses.
+* [new] `MJML: Copy HTML`: Copy the result HTML to clipboard.
+* [new] `MJML: Send Email`: Send email with Mailjet.
+* Some other small improvements.
 
 ### [0.0.6] (2017-06-28)
 * Added PhantomJS-rebuild functionallity in order to build PhantomJS for the propper OS. Based on [MarkdownConverter](https://github.com/manuth/MarkdownConverter).
@@ -85,6 +107,12 @@ Submit the [issues](https://github.com/attilabuti/vscode-mjml/issues) if you fin
 ## Contribution
 
 Fork the [repo](https://github.com/attilabuti/vscode-mjml) and submit pull requests.
+
+## Contributors
+
+A big thanks to the people that have contributed to this project:
+
+- Christian Brevik ([@cbrevik](https://github.com/cbrevik)) - [contributions](https://github.com/attilabuti/vscode-mjml/commits?author=cbrevik))
 
 ## License
 
