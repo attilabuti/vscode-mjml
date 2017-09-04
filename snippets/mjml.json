@@ -1,0 +1,347 @@
+{
+    "mjall": {
+        "prefix": "mjall",
+        "body": "<mj-all $1/>",
+        "description": "MJML All",
+        "scope": "source.mjml"
+    },
+    "mjattributes": {
+        "prefix": "mjattributes",
+        "body": [
+            "<mj-attributes>",
+            "\t$1",
+            "</mj-attributes>"
+        ],
+        "description": "MJML Attributes",
+        "scope": "source.mjml"
+    },
+    "mjbody": {
+        "prefix": "mjbody",
+        "body": [
+            "<mj-body>",
+            "\t$1",
+            "</mj-body>"
+        ],
+        "description": "MJML Body",
+        "scope": "source.mjml"
+    },
+    "mjbutton": {
+        "prefix": "mjbutton",
+        "body": [
+            "<mj-button>",
+            "\t$1",
+            "</mj-button>"
+        ],
+        "description": "MJML Button",
+        "scope": "source.mjml"
+    },
+    "mjcarousel": {
+        "prefix": "mjcarousel",
+        "body": [
+            "<mj-carousel>",
+            "\t$1",
+            "</mj-carousel>"
+        ],
+        "description": "MJML Carousel",
+        "scope": "source.mjml"
+    },
+    "mjcarousel-image": {
+        "prefix": "mjcarousel-image",
+        "body": "<mj-carousel-image src=\"$1\" />",
+        "description": "MJML Carousel Image",
+        "scope": "source.mjml"
+    },
+    "mjclass": {
+        "prefix": "mjclass",
+        "body": "<mj-class name=\"$1\" $2/>",
+        "description": "MJML Class",
+        "scope": "source.mjml"
+    },
+    "mjcolumn": {
+        "prefix": "mjcolumn",
+        "body": [
+            "<mj-column>",
+            "\t$1",
+            "</mj-column>"
+        ],
+        "description": "MJML Column",
+        "scope": "source.mjml"
+    },
+    "mjcontainer": {
+        "prefix": "mjcontainer",
+        "body": [
+            "<mj-container>",
+            "\t$1",
+            "</mj-container>"
+        ],
+        "description": "MJML Container",
+        "scope": "source.mjml"
+    },
+    "mjdivider": {
+        "prefix": "mjdivider",
+        "body": "<mj-divider $1/>",
+        "description": "MJML Divider",
+        "scope": "source.mjml"
+    },
+    "mjfont": {
+        "prefix": "mjfont",
+        "body": "<mj-font name=\"$1\" href=\"$2\" />",
+        "description": "MJML Font",
+        "scope": "source.mjml"
+    },
+    "mjgroup": {
+        "prefix": "mjgroup",
+        "body": [
+            "<mj-group>",
+            "\t$1",
+            "</mj-group>"
+        ],
+        "description": "MJML Group",
+        "scope": "source.mjml"
+    },
+    "mjhead": {
+        "prefix": "mjhead",
+        "body": [
+            "<mj-head>",
+            "\t$1",
+            "</mj-head>"
+        ],
+        "description": "MJML Head",
+        "scope": "source.mjml"
+    },
+    "mjhero": {
+        "prefix": "mjhero",
+        "body": [
+            "<mj-hero>",
+            "\t<mj-hero-content>",
+            "\t\t$1",
+            "\t</mj-hero-content>",
+            "</mj-hero>"
+        ],
+        "description": "MJML Hero",
+        "scope": "source.mjml"
+    },
+    "mjhtml": {
+        "prefix": "mjhtml",
+        "body": [
+            "<mj-html>",
+            "\t$1",
+            "</mj-html>"
+        ],
+        "description": "MJML HTML",
+        "scope": "source.mjml"
+    },
+    "mjimage": {
+        "prefix": "mjimage",
+        "body": "<mj-image src=\"$1\" />",
+        "description": "MJML Image",
+        "scope": "source.mjml"
+    },
+    "mjinclude": {
+        "prefix": "mjinclude",
+        "body": "<mj-include path=\"$1\" />",
+        "description": "MJML Include",
+        "scope": "source.mjml"
+    },
+    "mjinvoice": {
+        "prefix": "mjinvoice",
+        "body": [
+            "<mj-invoice>",
+            "\t$1",
+            "</mj-invoice>"
+        ],
+        "description": "MJML Invoice",
+        "scope": "source.mjml"
+    },
+    "mjinvoice-item": {
+        "prefix": "mjinvoice-item",
+        "body": "<mj-invoice-item name=\"$1\" price=\"$2\" quantity=\"$3\" />",
+        "description": "MJML Invoice Item",
+        "scope": "source.mjml"
+    },
+    "mjlocation": {
+        "prefix": "mjlocation",
+        "body": "<mj-location address=\"$1\" />",
+        "description": "MJML Location",
+        "scope": "source.mjml"
+    },
+    "mjraw": {
+        "prefix": "mjraw",
+        "body": [
+            "<mj-raw>",
+            "\t$1",
+            "</mj-raw>"
+        ],
+        "description": "MJML Raw",
+        "scope": "source.mjml"
+    },
+    "mjsection": {
+        "prefix": "mjsection",
+        "body": [
+            "<mj-section>",
+            "\t$1",
+            "</mj-section>"
+        ],
+        "description": "MJML Section",
+        "scope": "source.mjml"
+    },
+    "mjsocial": {
+        "prefix": "mjsocial",
+        "body": "<mj-social $1/>",
+        "description": "MJML Social",
+        "scope": "source.mjml"
+    },
+    "mjstyle": {
+        "prefix": "mjstyle",
+        "body": [
+            "<mj-style>",
+            "\t$1",
+            "</mj-style>"
+        ],
+        "description": "MJML Style",
+        "scope": "source.mjml"
+    },
+    "mjtable": {
+        "prefix": "mjtable",
+        "body": [
+            "<mj-table>",
+            "\t$1",
+            "</mj-table>"
+        ],
+        "description": "MJML Table",
+        "scope": "source.mjml"
+    },
+    "mjtext": {
+        "prefix": "mjtext",
+        "body": [
+            "<mj-text>",
+            "\t$1",
+            "</mj-text>"
+        ],
+        "description": "MJML Text",
+        "scope": "source.mjml"
+    },
+    "mjtitle": {
+        "prefix": "mjtitle",
+        "body": "<mj-title>$1</mj-title>",
+        "description": "MJML Title",
+        "scope": "source.mjml"
+    },
+    "mjml": {
+        "prefix": "mjml",
+        "body": [
+            "<mjml>",
+            "\t$1",
+            "</mjml>"
+        ],
+        "description": "MJML",
+        "scope": "source.mjml"
+    },
+    "mjpreview": {
+        "prefix": "mjpreview",
+        "body": [
+            "<mj-preview>",
+            "\t$1",
+            "</mj-preview>"
+        ],
+        "description": "MJML Preview",
+        "scope": "source.mjml"
+    },
+    "mjspacer": {
+        "prefix": "mjspacer",
+        "body": "<mj-spacer height=\"$1\" />",
+        "description": "MJML Spacer",
+        "scope": "source.mjml"
+    },
+    "mjwrapper": {
+        "prefix": "mjwrapper",
+        "body": [
+            "<mj-wrapper>",
+            "\t$1",
+            "</mj-wrapper>"
+        ],
+        "description": "MJML Wrapper",
+        "scope": "source.mjml"
+    },
+    "mjaccordion": {
+        "prefix": "mjaccordion",
+        "body": [
+            "<mj-accordion>",
+            "\t$1",
+            "</mj-accordion>"
+        ],
+        "description": "MJML Accordion",
+        "scope": "source.mjml"
+    },
+    "mjaccordion-element": {
+        "prefix": "mjaccordion-element",
+        "body": [
+            "<mj-accordion-element>",
+            "\t<mj-accordion-title>$1</mj-accordion-title>",
+            "\t<mj-accordion-text>$2</mj-accordion-text>",
+            "</mj-accordion-element>"
+        ],
+        "description": "MJML Accordion Element",
+        "scope": "source.mjml"
+    },
+    "mjnavbar": {
+        "prefix": "mjnavbar",
+        "body": [
+            "<mj-navbar>",
+            "\t$1",
+            "</mj-navbar>"
+        ],
+        "description": "MJML Navbar",
+        "scope": "source.mjml"
+    },
+    "mjinline-links": {
+        "prefix": "mjinline-links",
+        "body": [
+            "<mj-inline-links>",
+            "\t$1",
+            "</mj-inline-links>"
+        ],
+        "description": "MJML Inline Links",
+        "scope": "source.mjml"
+    },
+    "mjlink": {
+        "prefix": "mjlink",
+        "body": "<mj-link href=\"$1\">$2</mj-link>",
+        "description": "MJML Link",
+        "scope": "source.mjml"
+    },
+    "mjlist": {
+        "prefix": "mjlist",
+        "body": [
+            "<mj-list>",
+            "\t$1",
+            "</mj-list>"
+        ],
+        "description": "MJML List",
+        "scope": "source.mjml"
+    },
+    "mjml-": {
+        "prefix": "mjml-",
+        "body": [
+            "<mjml>",
+            "\t<mj-head>",
+            "\t\t<mj-title>$1</mj-title>",
+            "\t\t<mj-attributes>",
+            "\t\t\t$2",
+            "\t\t</mj-attributes>",
+            "\t</mj-head>",
+            "\t<mj-body>",
+            "\t\t<mj-container>",
+            "\t\t\t<mj-section>",
+            "\t\t\t\t<mj-column>",
+            "\t\t\t\t\t$3",
+            "\t\t\t\t</mj-column>",
+            "\t\t\t</mj-section>",
+            "\t\t</mj-container>",
+            "\t</mj-body>",
+            "</mjml>"
+        ],
+        "description": "Basic MJML Template",
+        "scope": "source.mjml"
+    }
+}

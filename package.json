@@ -2,7 +2,7 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "publisher": "attilabuti",
     "license": "MIT",
     "readme": "README.md",
@@ -128,8 +128,7 @@
                 }
             }
         },
-        "commands": [
-            {
+        "commands": [{
                 "command": "mjml.previewToSide",
                 "title": "Open Preview to the Side",
                 "category": "MJML",
@@ -159,25 +158,25 @@
                 "category": "MJML"
             }
         ],
-        "languages": [
-            {
-                "id": "mjml",
-                "extensions": [
-                    ".mjml"
-                ],
-                "aliases": [
-                    "mjml"
-                ]
-            }
-        ],
-        "menus": {
-            "editor/title": [
-                {
-                    "when": "editorLangId == mjml",
-                    "command": "mjml.previewToSide",
-                    "group": "navigation"
-                }
+        "languages": [{
+            "id": "mjml",
+            "extensions": [
+                ".mjml"
+            ],
+            "aliases": [
+                "mjml"
             ]
+        }],
+        "snippets": [{
+            "language": "mjml",
+            "path": "./snippets/mjml.json"
+        }],
+        "menus": {
+            "editor/title": [{
+                "when": "editorLangId == mjml",
+                "command": "mjml.previewToSide",
+                "group": "navigation"
+            }]
         }
     },
     "scripts": {

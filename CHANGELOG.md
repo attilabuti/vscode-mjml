@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "mjml" extension will be documented in this file.
 
+### [0.0.8] (2017-09-04)
+* [#10](https://github.com/attilabuti/vscode-mjml/issues/10): added MJML snippets. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
+
 ### [0.0.7] (2017-07-21)
 * [#5](https://github.com/attilabuti/vscode-mjml/issues/5): .mjmlconfig is now supported.
 * [new] Configuration property `mjml.mailjetAPIKey`: Mailjet API Key.
