@@ -133,7 +133,7 @@
     },
     "mjimage": {
         "prefix": "mjimage",
-        "body": "<mj-image src=\"$1\" />",
+        "body": "<mj-image src=\"$1\" alt=\"$2\" />",
         "description": "MJML Image",
         "scope": "source.mjml"
     },
