@@ -60,8 +60,8 @@
     "mjcolumn": {
         "prefix": "mjcolumn",
         "body": [
-            "<mj-column>",
-            "\t$1",
+            "<mj-column width=\"$1\">",
+            "\t$2",
             "</mj-column>"
         ],
         "description": "MJML Column",
@@ -333,8 +333,8 @@
             "\t<mj-body>",
             "\t\t<mj-container>",
             "\t\t\t<mj-section>",
-            "\t\t\t\t<mj-column>",
-            "\t\t\t\t\t$3",
+            "\t\t\t\t<mj-column width=\"$3\">",
+            "\t\t\t\t\t$4",
             "\t\t\t\t</mj-column>",
             "\t\t\t</mj-section>",
             "\t\t</mj-container>",
