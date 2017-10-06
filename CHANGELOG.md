@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to the "mjml" extension will be documented in this file.
 
+### [0.0.9] (2017-10-06)
+* [new] Configuration property `mjml.screenshotWidths`: Screenshot widths.
+* [new] `MJML: Multiple Screenshots`: [#13](https://github.com/attilabuti/vscode-mjml/issues/13) Take multiple screenshots of the rendered MJML document.
+* [new] `MJML: Template`: Fetch official templates from source. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
+* Some other small improvements.
+* MJML 3.3.5
+
 ### [0.0.8] (2017-09-04)
 * [#10](https://github.com/attilabuti/vscode-mjml/issues/10): added MJML snippets. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
 

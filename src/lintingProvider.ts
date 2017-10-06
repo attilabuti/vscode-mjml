@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { documentParser, MJMLValidator } from 'mjml';
+import { documentParser, MJMLValidator } from "mjml";
 
-import helper from './helper';
+import helper from "./helper";
 
 export default class MJMLLintingProvider {
 
@@ -21,7 +21,7 @@ export default class MJMLLintingProvider {
         }, this, subscriptions);
 
         vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
-            if (vscode.workspace.getConfiguration('mjml').lintWhenTyping) {
+            if (vscode.workspace.getConfiguration("mjml").lintWhenTyping) {
                 this.doMJMllint(event.document);
             }
         }, this, subscriptions);
@@ -44,14 +44,14 @@ export default class MJMLLintingProvider {
     }
 
     private doMJMllint(textDocument: vscode.TextDocument): void {
-        if (textDocument.languageId !== 'mjml') {
+        if (textDocument.languageId !== "mjml") {
             return;
         }
 
         let diagnostics: vscode.Diagnostic[] = [];
 
         try {
-            let MJMLDocument;
+            let MJMLDocument: any;
 
             try {
                 MJMLDocument = documentParser(vscode.window.activeTextEditor.document.getText());
@@ -59,24 +59,24 @@ export default class MJMLLintingProvider {
                 return;
             }
 
-            let body = MJMLDocument.children.find((root) => {
-                return root.tagName === 'mj-body';
+            let body: any = MJMLDocument.children.find((root: any) => {
+                return root.tagName === "mj-body";
             });
 
             if (!body || !body.children || body.children.length == 0) {
                 return;
             }
 
-            let report = MJMLValidator(body.children[0]);
+            let report: any = MJMLValidator(body.children[0]);
 
-            report.forEach(err => {
-                let line = err.line - 1;
-                let currentLine = vscode.window.activeTextEditor.document.lineAt(line).text;
+            report.forEach((err: any) => {
+                let line: number = err.line - 1;
+                let currentLine: string = vscode.window.activeTextEditor.document.lineAt(line).text;
 
-                let start = new vscode.Position(line, currentLine.indexOf('<'));
-                let end = new vscode.Position(line, currentLine.length);
+                let start: vscode.Position = new vscode.Position(line, currentLine.indexOf("<"));
+                let end: vscode.Position = new vscode.Position(line, currentLine.length);
 
-                let diagnostic = new vscode.Diagnostic(
+                let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(start, end),
                     err.message,
                     vscode.DiagnosticSeverity.Error

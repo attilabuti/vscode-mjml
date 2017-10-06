@@ -14,6 +14,7 @@ MJML preview, lint, compile for Visual Studio Code.
 * Take a screenshot of the rendered MJML document.
 * Send email with Mailjet.
 * Code snippets for MJML. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
+* Fetch official templates. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
 
 ## It looks like this
 
@@ -35,8 +36,10 @@ The following command is available:
 * **MJML: Export HTML** Export HTML file from MJML.
 * **MJML: Open Preview to the Side** Opens a preview in a column alongside the current document.
 * **MJML: Screenshot** Take a screenshot of the rendered MJML document, and save it as a file.
+* **MJML: Multiple Screenshots** Take multiple screenshots of the rendered MJML document.
 * **MJML: Copy HTML** Copy the result HTML to clipboard.
 * **MJML: Send Email** Send email with Mailjet.
+* **MJML: Template** Fetch official templates.
 
 ## Settings
 
@@ -49,6 +52,7 @@ The following command is available:
 | `mjml.minifyHtmlOutput` | `true` | Minify HTML output. |
 | `mjml.beautifyHtmlOutput` | `false` | Beautify HTML output. (Works when `mjml.minifyHtmlOutput` aren't enabled.) |
 | `mjml.screenshotWidth` | `650` | Screenshot width. |
+| `mjml.screenshotWidths` | `640,750` | Screenshot widths. |
 | `mjml.screenshotType` | `jpg` | Screenshot type. Possible values are 'png', 'jpg', and 'jpeg'. |
 | `mjml.screenshotQuality` | `75` | Screenshot quality. |
 | `mjml.mailjetAPIKey` | ` ` | Mailjet API Key. |
@@ -69,7 +73,7 @@ The following command is available:
 | `mjcarousel` | [mj-carousel](https://mjml.io/documentation/#mjml-carousel) | `<mj-carousel></mj-carousel>` |
 | `mjcarousel-image` | [mj-carousel-image](https://mjml.io/documentation/#mjml-carousel) | `<mj-carousel-image src="" />` |
 | `mjclass` | [mj-class](https://mjml.io/documentation/#mjml-attributes) | `<mj-class name="" />` |
-| `mjcolumn` | [mj-column](https://mjml.io/documentation/#mjml-column) | `<mj-column></mj-column>` |
+| `mjcolumn` | [mj-column](https://mjml.io/documentation/#mjml-column) | `<mj-column width=""></mj-column>` |
 | `mjcontainer` | [mj-container](https://mjml.io/documentation/#mjml-container) | `<mj-container></mj-container>` |
 | `mjdivider` | [mj-divider](https://mjml.io/documentation/#mjml-divider) | `<mj-divider />` |
 | `mjfont` | [mj-font](https://mjml.io/documentation/#mjml-font) | `<mj-font name="" href="" />` |
@@ -77,7 +81,7 @@ The following command is available:
 | `mjhead` | [mj-head](https://mjml.io/documentation/#mj-head) | `<mj-head></mj-head>` |
 | `mjhero` | [mj-hero](https://mjml.io/documentation/#mjml-hero) | `<mj-hero><mj-hero-content></mj-hero-content></mj-hero>` |
 | `mjhtml` | [mj-html](https://github.com/mjmlio/mjml/tree/master/packages/mjml-html) | `<mj-html></mj-html>` |
-| `mjimage` | [mj-image](https://mjml.io/documentation/#mjml-image) | `<mj-image src="" />` |
+| `mjimage` | [mj-image](https://mjml.io/documentation/#mjml-image) | `<mj-image src="" alt="" />` |
 | `mjinclude` | [mj-include](https://mjml.io/documentation/#mj-include) | `<mj-include path="" />` |
 | `mjinvoice` | [mj-invoice](https://mjml.io/documentation/#mjml-invoice) | `<mj-invoice></mj-invoice>` |
 | `mjinvoice-item` | [mj-invoice-item](https://mjml.io/documentation/#mjml-invoice) | `<mj-invoice-item name="" price="" quantity="" />` |
@@ -102,6 +106,13 @@ The following command is available:
 | `mjml-` | | Basic MJML Template |
 
 ## Change Log
+
+### [0.0.9] (2017-10-06)
+* [new] Configuration property `mjml.screenshotWidths`: Screenshot widths.
+* [new] `MJML: Multiple Screenshots`: [#13](https://github.com/attilabuti/vscode-mjml/issues/13) Take multiple screenshots of the rendered MJML document.
+* [new] `MJML: Template`: Fetch official templates from source. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
+* Some other small improvements.
+* MJML 3.3.5
 
 ### [0.0.8] (2017-09-04)
 * [#10](https://github.com/attilabuti/vscode-mjml/issues/10): added MJML snippets. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
@@ -162,6 +173,7 @@ Fork the [repo](https://github.com/attilabuti/vscode-mjml) and submit pull reque
 A big thanks to the people that have contributed to this project:
 
 - Christian Brevik ([@cbrevik](https://github.com/cbrevik)) - [contributions](https://github.com/attilabuti/vscode-mjml/commits?author=cbrevik))
+- Kevin Oliveira ([@kvnol](https://github.com/kvnol)) - [contributions](https://github.com/attilabuti/vscode-mjml/commits?author=kvnol))
 
 ## License
 

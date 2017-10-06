@@ -1,57 +1,38 @@
-'use strict';
+"use strict";
 
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 
-import helper from './helper';
+import helper from "./helper";
 
 export default class ExportHTML {
 
     constructor(subscriptions: vscode.Disposable[]) {
         subscriptions.push(
-            vscode.commands.registerCommand('mjml.exportHTML', () => {
+            vscode.commands.registerCommand("mjml.exportHTML", () => {
                 this.export();
             })
         );
     }
 
-    private export() {
-        if (!(helper.isMJMLFile(vscode.window.activeTextEditor.document))) {
-            vscode.window.showWarningMessage('This is not a MJML document!');
-            return;
-        }
+    private export(): void {
+        helper.renderMJML((content: string) => {
+            let defaultFileName: string = path.basename(vscode.window.activeTextEditor.document.uri.fsPath).replace(/\.[^\.]+$/, "");
 
-        let defaultFileName = path.basename(vscode.window.activeTextEditor.document.uri.fsPath).replace(/\.[^\.]+$/, '');
+            vscode.window.showInputBox({ placeHolder: `File name (${defaultFileName}.html)` }).then((fileName: string) => {
+                fileName = fileName ? fileName.replace(/\.[^\.]+$/, "") : defaultFileName;
+                let file: string = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, `../${fileName}.html`);
 
-        vscode.window.showInputBox({ placeHolder: 'File name (' + defaultFileName + '.html)' }).then((fileName) => {
-            let content = helper.renderMJML(
-                vscode.window.activeTextEditor.document.getText(),
-                vscode.workspace.getConfiguration('mjml').minifyHtmlOutput,
-                vscode.workspace.getConfiguration('mjml').beautifyHtmlOutput
-            );
-
-            if (content) {
-                if (fileName) {
-                    fileName = fileName.replace(/\.[^\.]+$/, '');
-                }
-                else {
-                    fileName = defaultFileName;
-                }
-
-                let file = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, '../' + fileName + '.html');
-
-                fs.writeFile(file, content, (err) => {
+                fs.writeFile(file, content, (err: NodeJS.ErrnoException) => {
                     if (err) {
-                        return console.log(err);
+                        vscode.window.showErrorMessage("Something went wrong.");
                     }
-
-                    vscode.window.showInformationMessage('File saved as ' + fileName + '.html');
+                    else {
+                        vscode.window.showInformationMessage(`File saved as ${fileName}.html`);
+                    }
                 });
-            }
-            else {
-                vscode.window.showErrorMessage('MJMLError: Failed to parse file ' + path.basename(vscode.window.activeTextEditor.document.uri.fsPath));
-            }
+            });
         });
     }
 

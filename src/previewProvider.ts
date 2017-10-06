@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import helper from './helper';
+import helper from "./helper";
 
 export default class PreviewManager {
 
@@ -14,7 +14,7 @@ export default class PreviewManager {
         this.subscriptions = context.subscriptions;
 
         this.subscriptions.push(
-            vscode.commands.registerCommand('mjml.previewToSide', () => {
+            vscode.commands.registerCommand("mjml.previewToSide", () => {
                 this.previewCommand();
             })
         );
@@ -36,7 +36,7 @@ export default class PreviewManager {
     }
 
     public dispose(): void {
-        let values = this.fileMap.values()
+        let values: IterableIterator<MJMLView> = this.fileMap.values();
         let value: IteratorResult<MJMLView> = values.next();
 
         while (!value.done) {
@@ -63,15 +63,13 @@ class MJMLView {
         this.previewUri = this.createUri(document.uri);
         this.viewColumn = vscode.ViewColumn.Two;
 
-        this.label = 'MJML Preview';
+        this.label = "MJML Preview";
 
-        this.registrations.push(vscode.workspace.registerTextDocumentContentProvider('mjml-preview', this.provider));
+        this.registrations.push(vscode.workspace.registerTextDocumentContentProvider("mjml-preview", this.provider));
         this.registerEvents(subscriptions);
     }
 
     private registerEvents(subscriptions: vscode.Disposable[]): void {
-        let lastEditor: any = '';
-
         subscriptions.push(
             vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
                 if (helper.isMJMLFile(document)) {
@@ -80,7 +78,7 @@ class MJMLView {
             }),
 
             vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
-                if (vscode.workspace.getConfiguration('mjml').updateWhenTyping) {
+                if (vscode.workspace.getConfiguration("mjml").updateWhenTyping) {
                     if (helper.isMJMLFile(event.document)) {
                         this.provider.update(this.previewUri);
                     }
@@ -90,7 +88,6 @@ class MJMLView {
             vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor) => {
                 if (this.document.uri === editor.document.uri) {
                     if (helper.isMJMLFile(editor.document)) {
-                        lastEditor = editor.document.uri;
                         this.provider.update(this.previewUri);
                     }
                 }
@@ -104,15 +101,15 @@ class MJMLView {
         }
     }
 
-    public execute() {
-        return vscode.commands.executeCommand('vscode.previewHtml', this.previewUri, this.viewColumn, this.label).then((success) => {
+    public execute(): void {
+        vscode.commands.executeCommand("vscode.previewHtml", this.previewUri, this.viewColumn, this.label).then((success: boolean) => {
             if (this.viewColumn === 2) {
-                if (vscode.workspace.getConfiguration('mjml').preserveFocus) {
+                if (vscode.workspace.getConfiguration("mjml").preserveFocus) {
                     // Preserve focus of Text Editor after preview open
                     vscode.window.showTextDocument(this.document);
                 }
             }
-        }, (reason) => {
+        }, (reason: string) => {
             vscode.window.showErrorMessage(reason);
         });
     }
@@ -122,14 +119,14 @@ class MJMLView {
     }
 
     private createUri(uri: vscode.Uri): vscode.Uri {
-        return vscode.Uri.parse('mjml-preview://authority/mjml-preview/sidebyside/');
+        return vscode.Uri.parse("mjml-preview://authority/mjml-preview/sidebyside/");
     }
 
 }
 
 class PreviewContentProvider implements vscode.TextDocumentContentProvider {
 
-    private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+    private _onDidChange: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter<vscode.Uri>();
     private document: vscode.TextDocument;
 
     constructor(document: vscode.TextDocument) {
@@ -149,28 +146,25 @@ class PreviewContentProvider implements vscode.TextDocumentContentProvider {
     }
 
     public provideTextDocumentContent(uri: vscode.Uri): string {
-        if (this.document.languageId !== 'mjml') {
-            return this.error('Active editor doesn\'t show a MJML document.');
+        if (this.document.languageId !== "mjml") {
+            return this.error("Active editor doesn't show a MJML document.");
         }
 
         return this.renderMJML();
     }
 
     private renderMJML(): string {
-        let html = helper.renderMJML(this.document.getText(), true, false);
+        let html: string = helper.mjml2html(this.document.getText(), false, false);
 
         if (html) {
             return helper.fixLinks(html);
         }
 
-        return this.error('Active editor doesn\'t show a MJML document.');
+        return this.error("Active editor doesn't show a MJML document.");
     }
 
     private error(error: string): string {
-        return `
-            <body>
-                ${error}
-            </body>`;
+        return `<body>${error}</body>`;
     }
 
 }
@@ -180,8 +174,8 @@ class IDMap {
     private map: Map<[string, vscode.Uri], string> = new Map<[string, vscode.Uri], string>();
 
     private UUIDv4(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c: string) => {
+            let r: number = Math.random() * 16 | 0, v: number = c == "x" ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
@@ -190,8 +184,8 @@ class IDMap {
         return JSON.stringify({ uri: uri });
     }
 
-    public getByUri(uri: string): string | null {
-        let keys = this.map.keys();
+    public getByUri(uri: string): string | undefined {
+        let keys: IterableIterator<[string, vscode.Uri]> = this.map.keys();
         let key: IteratorResult<[string, vscode.Uri]> = keys.next();
 
         while (!key.done) {
@@ -202,15 +196,15 @@ class IDMap {
             key = keys.next();
         }
 
-        return null;
+        return undefined;
     }
 
     public hasUri(uri: string): boolean {
-        return this.getByUri(uri) !== null;
+        return this.getByUri(uri) != undefined;
     }
 
     public add(documentUri: string, previewUri: vscode.Uri): string {
-        let id = this.UUIDv4();
+        let id: string = this.UUIDv4();
         this.map.set([documentUri, previewUri], id);
 
         return id;
