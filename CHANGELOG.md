@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "mjml" extension will be documented in this file.
 
+### [0.1.0] (2017-12-14)
+* [new] `MJML: Beautify`: [#8](https://github.com/attilabuti/vscode-mjml/issues/8) Beautify MJML code.
+* [#15](https://github.com/attilabuti/vscode-mjml/pull/15): fixed preview cache issue.
+* Some other improvements.
+
 ### [0.0.9] (2017-10-06)
 * [new] Configuration property `mjml.screenshotWidths`: Screenshot widths.
 * [new] `MJML: Multiple Screenshots`: [#13](https://github.com/attilabuti/vscode-mjml/issues/13) Take multiple screenshots of the rendered MJML document.

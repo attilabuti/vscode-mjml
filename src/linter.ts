@@ -55,7 +55,7 @@ export default class MJMLLintingProvider {
 
             try {
                 MJMLDocument = documentParser(vscode.window.activeTextEditor.document.getText());
-            } catch (e) {
+            } catch (err) {
                 return;
             }
 
@@ -87,7 +87,7 @@ export default class MJMLLintingProvider {
 
             this.diagnosticCollection.set(textDocument.uri, diagnostics);
         }
-        catch (e) {
+        catch (err) {
             this.diagnosticCollection.set(textDocument.uri, diagnostics);
         }
     }

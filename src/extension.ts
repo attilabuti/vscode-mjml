@@ -6,20 +6,22 @@ import * as childProcess from "child_process";
 
 import * as phantomJS from "phantomjs-prebuilt";
 
-import LintingProvider from "./lintingProvider";
-import PreviewManager from "./previewProvider";
-import ExportHTML from "./exportProvider";
-import CopyHTML from "./copyProvider";
-import Screenshot from "./screenshotProvider";
-import SendEmail from "./emailProvider";
-import Template from "./templateProvider";
+import Beautify from "./beautify";
+import CopyHTML from "./copy";
+import SendEmail from "./email";
+import ExportHTML from "./export";
+import LintingProvider from "./linter";
+import PreviewManager from "./preview";
+import Screenshot from "./screenshot";
+import Template from "./template";
 
+let beautify: Beautify;
+let copyHTML: CopyHTML;
+let sendEmail: SendEmail;
+let exportHTML: ExportHTML;
 let linter: LintingProvider;
 let previewManager: PreviewManager;
-let exportHTML: ExportHTML;
-let copyHTML: CopyHTML;
 let screenshot: Screenshot;
-let sendEmail: SendEmail;
 let template: Template;
 
 export function activate(context: vscode.ExtensionContext) {
@@ -50,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
                 screenshot = new Screenshot(context, process.platform, phantomJS.platform, phantomJSBuilt);
             });
         }
-        catch (e) {
+        catch (err) {
             vscode.window.showErrorMessage("MJML couldn't build the propper version of PhantomJS. Restart VSCode in order to try it again.");
             phantomJSBuilt = false;
         }
@@ -63,10 +65,17 @@ export function activate(context: vscode.ExtensionContext) {
         linter = new LintingProvider(context.subscriptions);
     }
 
-    previewManager = new PreviewManager(context);
-    exportHTML = new ExportHTML(context.subscriptions);
+    beautify = new Beautify(context.subscriptions);
+    vscode.languages.registerDocumentFormattingEditProvider('mjml', {
+        provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
+            return beautify.formatDocument();
+        }
+    });
+
     copyHTML = new CopyHTML(context.subscriptions);
     sendEmail = new SendEmail(context.subscriptions);
+    exportHTML = new ExportHTML(context.subscriptions);
+    previewManager = new PreviewManager(context);
     template = new Template(context.subscriptions);
 }
 

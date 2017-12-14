@@ -50,7 +50,7 @@ export default class Helper {
                 return html.html;
             }
         }
-        catch (e) {
+        catch (err) {
             return;
         }
     }

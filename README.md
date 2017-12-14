@@ -15,6 +15,7 @@ MJML preview, lint, compile for Visual Studio Code.
 * Send email with Mailjet.
 * Code snippets for MJML. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
 * Fetch official templates. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
+* Beautify MJML code.
 
 ## It looks like this
 
@@ -40,6 +41,7 @@ The following command is available:
 * **MJML: Copy HTML** Copy the result HTML to clipboard.
 * **MJML: Send Email** Send email with Mailjet.
 * **MJML: Template** Fetch official templates.
+* **MJML: Beautify** or **Format Document** Beautify MJML code.
 
 ## Settings
 
@@ -61,6 +63,7 @@ The following command is available:
 | `mjml.mailFromName` | ` ` | Sender name. |
 | `mjml.mailSubject` | ` ` | Email subject. |
 | `mjml.mailRecipients` | ` ` | Comma separated list of recipients email addresses. |
+| `mjml.beautify` | ` ` | Beautify options ([available options](https://github.com/beautify-web/js-beautify#options)). |
 
 ## Snippets
 
@@ -106,6 +109,11 @@ The following command is available:
 | `mjml-` | | Basic MJML Template |
 
 ## Change Log
+
+### [0.1.0] (2017-12-14)
+* [new] `MJML: Beautify`: [#8](https://github.com/attilabuti/vscode-mjml/issues/8) Beautify MJML code.
+* [#15](https://github.com/attilabuti/vscode-mjml/pull/15): fixed preview cache issue.
+* Some other improvements.
 
 ### [0.0.9] (2017-10-06)
 * [new] Configuration property `mjml.screenshotWidths`: Screenshot widths.

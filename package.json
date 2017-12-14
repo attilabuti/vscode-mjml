@@ -2,14 +2,15 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "0.0.9",
+    "version": "0.1.0",
     "publisher": "attilabuti",
     "license": "MIT",
     "readme": "README.md",
     "icon": "images/icon.png",
     "author": {
         "name": "Attila Buti",
-        "url": "www.attilabuti.com"
+        "email": "hello@attilabuti.com",
+        "url": "https://attilabuti.com"
     },
     "homepage": "https://github.com/attilabuti/vscode-mjml#readme",
     "repository": {
@@ -26,7 +27,8 @@
     "categories": [
         "Other",
         "Linters",
-        "Snippets"
+        "Snippets",
+        "Formatters"
     ],
     "keywords": [
         "vscode",
@@ -46,6 +48,7 @@
         "onCommand:mjml.multipleScreenshots",
         "onCommand:mjml.sendEmail",
         "onCommand:mjml.template",
+        "onCommand:mjml.beautify",
         "onLanguage:mjml"
     ],
     "main": "./out/extension",
@@ -136,6 +139,14 @@
                     "type": "string",
                     "default": "",
                     "description": "Comma separated list of recipients email addresses."
+                },
+                "mjml.beautify": {
+                    "type": "object",
+                    "default": {
+                        "indent_size": 2,
+                        "wrap_attributes_indent_size": 2
+                    },
+                    "description": "Beautify options."
                 }
             }
         },
@@ -177,6 +188,11 @@
             {
                 "command": "mjml.template",
                 "title": "Template",
+                "category": "MJML"
+            },
+            {
+                "command": "mjml.beautify",
+                "title": "Beautify",
                 "category": "MJML"
             }
         ],
@@ -226,6 +242,7 @@
         "mjml": "^3.3.5",
         "node-fetch": "1.7.3",
         "node-mailjet": "^3.2.1",
-        "webshot": "^0.18.0"
+        "webshot": "^0.18.0",
+        "js-beautify": "^1.7.5"
     }
 }
