@@ -1,5 +1,12 @@
 # Change Log
 All notable changes to the "mjml" extension will be documented in this file.
+This project adheres to [Semantic Versioning](https://semver.org/).
+
+### [1.0.0] (2018-03-07)
+* [new] `MJML: Migrate`: Migrate a template from MJML 3 to MJML 4.
+* Change to [Semantic Versioning](https://semver.org/).
+* Some fixes.
+* MJML 4.0.0
 
 ### [0.1.0] (2017-12-14)
 * [new] `MJML: Beautify`: [#8](https://github.com/attilabuti/vscode-mjml/issues/8) Beautify MJML code.

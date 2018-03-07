@@ -3,8 +3,9 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
+import * as beautifyJS from "js-beautify";
 import fileUrl = require("file-url");
-import { mjml2html } from "mjml";
+import mjml2html = require("mjml");
 
 export default class Helper {
 
@@ -38,7 +39,7 @@ export default class Helper {
 
     static mjml2html(mjml: string, minify: boolean, beautify: boolean): string {
         try {
-            let html: any = mjml2html(mjml, {
+            let { html, errors } = mjml2html(mjml, {
                 level: "skip",
                 minify: minify,
                 beautify: beautify,
@@ -46,8 +47,8 @@ export default class Helper {
                 cwd: this.getCWD()
             });
 
-            if (html.html) {
-                return html.html;
+            if (html) {
+                return html;
             }
         }
         catch (err) {
@@ -71,6 +72,15 @@ export default class Helper {
                 return [p1, fileUrl(path.join(path.dirname(vscode.window.activeTextEditor.document.uri.fsPath), p2)), p3].join("");
             }
         );
+    }
+
+    static beautifyHTML(mjml: string): any {
+        try {
+            return beautifyJS.html(mjml, vscode.workspace.getConfiguration("mjml").beautify);
+        } catch (err) {
+            vscode.window.showErrorMessage(err);
+            return;
+        }
     }
 
 }

@@ -2,8 +2,6 @@
 
 import * as vscode from "vscode";
 
-import * as beautifyJS from "js-beautify";
-
 import helper from "./helper";
 
 export default class Beautify {
@@ -19,23 +17,14 @@ export default class Beautify {
     private beautify(): void {
         if (helper.isMJMLFile(vscode.window.activeTextEditor.document)) {
             vscode.window.activeTextEditor.edit((editBuilder: vscode.TextEditorEdit) => {
-                editBuilder.replace(this.getRange(), this.beautifyHTML());
+                editBuilder.replace(
+                    this.getRange(),
+                    helper.beautifyHTML(vscode.window.activeTextEditor.document.getText())
+                );
             });
         }
         else {
             vscode.window.showWarningMessage("This is not a MJML document!");
-            return;
-        }
-    }
-
-    private beautifyHTML(): any {
-        try {
-            return beautifyJS.html(
-                vscode.window.activeTextEditor.document.getText(),
-                vscode.workspace.getConfiguration("mjml").beautify
-            );
-        } catch (err) {
-            vscode.window.showErrorMessage(err);
             return;
         }
     }
@@ -50,7 +39,12 @@ export default class Beautify {
     }
 
     public formatDocument(): vscode.TextEdit[] {
-        return [vscode.TextEdit.replace(this.getRange(), this.beautifyHTML())];
+        return [
+            vscode.TextEdit.replace(
+                this.getRange(),
+                helper.beautifyHTML(vscode.window.activeTextEditor.document.getText())
+            )
+        ];
     }
 
 }

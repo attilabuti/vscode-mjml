@@ -1,7 +1,7 @@
 {
     "mjall": {
         "prefix": "mjall",
-        "body": "<mj-all $1/>",
+        "body": "<mj-all $1 />",
         "description": "MJML All",
         "scope": "source.mjml"
     },
@@ -23,6 +23,12 @@
             "</mj-body>"
         ],
         "description": "MJML Body",
+        "scope": "source.mjml"
+    },
+    "mjbreakpoint": {
+        "prefix": "mjbreakpoint",
+        "body": "<mj-breakpoint width=\"$1\" />",
+        "description": "MJML Breakpoint",
         "scope": "source.mjml"
     },
     "mjbutton": {
@@ -67,19 +73,9 @@
         "description": "MJML Column",
         "scope": "source.mjml"
     },
-    "mjcontainer": {
-        "prefix": "mjcontainer",
-        "body": [
-            "<mj-container>",
-            "\t$1",
-            "</mj-container>"
-        ],
-        "description": "MJML Container",
-        "scope": "source.mjml"
-    },
     "mjdivider": {
         "prefix": "mjdivider",
-        "body": "<mj-divider $1/>",
+        "body": "<mj-divider $1 />",
         "description": "MJML Divider",
         "scope": "source.mjml"
     },
@@ -113,22 +109,10 @@
         "prefix": "mjhero",
         "body": [
             "<mj-hero>",
-            "\t<mj-hero-content>",
-            "\t\t$1",
-            "\t</mj-hero-content>",
+            "\t$1",
             "</mj-hero>"
         ],
         "description": "MJML Hero",
-        "scope": "source.mjml"
-    },
-    "mjhtml": {
-        "prefix": "mjhtml",
-        "body": [
-            "<mj-html>",
-            "\t$1",
-            "</mj-html>"
-        ],
-        "description": "MJML HTML",
         "scope": "source.mjml"
     },
     "mjimage": {
@@ -141,28 +125,6 @@
         "prefix": "mjinclude",
         "body": "<mj-include path=\"$1\" />",
         "description": "MJML Include",
-        "scope": "source.mjml"
-    },
-    "mjinvoice": {
-        "prefix": "mjinvoice",
-        "body": [
-            "<mj-invoice>",
-            "\t$1",
-            "</mj-invoice>"
-        ],
-        "description": "MJML Invoice",
-        "scope": "source.mjml"
-    },
-    "mjinvoice-item": {
-        "prefix": "mjinvoice-item",
-        "body": "<mj-invoice-item name=\"$1\" price=\"$2\" quantity=\"$3\" />",
-        "description": "MJML Invoice Item",
-        "scope": "source.mjml"
-    },
-    "mjlocation": {
-        "prefix": "mjlocation",
-        "body": "<mj-location address=\"$1\" />",
-        "description": "MJML Location",
         "scope": "source.mjml"
     },
     "mjraw": {
@@ -187,8 +149,22 @@
     },
     "mjsocial": {
         "prefix": "mjsocial",
-        "body": "<mj-social $1/>",
+        "body": [
+            "<mj-social>",
+            "\t$1",
+            "</mj-social>"
+        ],
         "description": "MJML Social",
+        "scope": "source.mjml"
+    },
+    "mjsocialelement": {
+        "prefix": "mjsocialelement",
+        "body": [
+            "<mj-social-element>",
+            "\t$1",
+            "</mj-social-element>"
+        ],
+        "description": "MJML Social Element",
         "scope": "source.mjml"
     },
     "mjstyle": {
@@ -294,30 +270,20 @@
         "description": "MJML Navbar",
         "scope": "source.mjml"
     },
-    "mjinline-links": {
-        "prefix": "mjinline-links",
+    "mjnavbarlink": {
+        "prefix": "mjnavbarlink",
         "body": [
-            "<mj-inline-links>",
+            "<mj-navbar-link>",
             "\t$1",
-            "</mj-inline-links>"
+            "</mj-navbar-link>"
         ],
-        "description": "MJML Inline Links",
+        "description": "MJML Navbar Link",
         "scope": "source.mjml"
     },
     "mjlink": {
         "prefix": "mjlink",
         "body": "<mj-link href=\"$1\">$2</mj-link>",
         "description": "MJML Link",
-        "scope": "source.mjml"
-    },
-    "mjlist": {
-        "prefix": "mjlist",
-        "body": [
-            "<mj-list>",
-            "\t$1",
-            "</mj-list>"
-        ],
-        "description": "MJML List",
         "scope": "source.mjml"
     },
     "mjml-": {
@@ -331,13 +297,11 @@
             "\t\t</mj-attributes>",
             "\t</mj-head>",
             "\t<mj-body>",
-            "\t\t<mj-container>",
-            "\t\t\t<mj-section>",
-            "\t\t\t\t<mj-column width=\"$3\">",
-            "\t\t\t\t\t$4",
-            "\t\t\t\t</mj-column>",
-            "\t\t\t</mj-section>",
-            "\t\t</mj-container>",
+            "\t\t<mj-section>",
+            "\t\t\t<mj-column width=\"$3\">",
+            "\t\t\t\t$4",
+            "\t\t\t</mj-column>",
+            "\t\t</mj-section>",
             "\t</mj-body>",
             "</mjml>"
         ],

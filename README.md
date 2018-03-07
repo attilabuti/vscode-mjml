@@ -16,6 +16,7 @@ MJML preview, lint, compile for Visual Studio Code.
 * Code snippets for MJML. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
 * Fetch official templates. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
 * Beautify MJML code.
+* Migrate a template from MJML 3 to MJML 4.
 
 ## It looks like this
 
@@ -42,6 +43,7 @@ The following command is available:
 * **MJML: Send Email** Send email with Mailjet.
 * **MJML: Template** Fetch official templates.
 * **MJML: Beautify** or **Format Document** Beautify MJML code.
+* **MJML: Migrate** Migrate a template from MJML 3 to MJML 4.
 
 ## Settings
 
@@ -69,46 +71,48 @@ The following command is available:
 
 | Trigger | URL | Content |
 | --- | --- | --- |
-| `mjall` | [mj-all](https://mjml.io/documentation/#mjml-attributes) | `<mj-all />` |
-| `mjattributes` | [mj-attributes](https://mjml.io/documentation/#mjml-attributes) | `<mj-attributes></mj-attributes>` |
-| `mjbody` | [mj-body](https://mjml.io/documentation/#mj-body) | `<mj-body></mj-body>` |
-| `mjbutton` | [mj-button](https://mjml.io/documentation/#mjml-button) | `<mj-button></mj-button>` |
-| `mjcarousel` | [mj-carousel](https://mjml.io/documentation/#mjml-carousel) | `<mj-carousel></mj-carousel>` |
-| `mjcarousel-image` | [mj-carousel-image](https://mjml.io/documentation/#mjml-carousel) | `<mj-carousel-image src="" />` |
-| `mjclass` | [mj-class](https://mjml.io/documentation/#mjml-attributes) | `<mj-class name="" />` |
-| `mjcolumn` | [mj-column](https://mjml.io/documentation/#mjml-column) | `<mj-column width=""></mj-column>` |
-| `mjcontainer` | [mj-container](https://mjml.io/documentation/#mjml-container) | `<mj-container></mj-container>` |
-| `mjdivider` | [mj-divider](https://mjml.io/documentation/#mjml-divider) | `<mj-divider />` |
-| `mjfont` | [mj-font](https://mjml.io/documentation/#mjml-font) | `<mj-font name="" href="" />` |
-| `mjgroup` | [mj-group](https://mjml.io/documentation/#mjml-group) | `<mj-group></mj-group>` |
-| `mjhead` | [mj-head](https://mjml.io/documentation/#mj-head) | `<mj-head></mj-head>` |
-| `mjhero` | [mj-hero](https://mjml.io/documentation/#mjml-hero) | `<mj-hero><mj-hero-content></mj-hero-content></mj-hero>` |
-| `mjhtml` | [mj-html](https://github.com/mjmlio/mjml/tree/master/packages/mjml-html) | `<mj-html></mj-html>` |
-| `mjimage` | [mj-image](https://mjml.io/documentation/#mjml-image) | `<mj-image src="" alt="" />` |
-| `mjinclude` | [mj-include](https://mjml.io/documentation/#mj-include) | `<mj-include path="" />` |
-| `mjinvoice` | [mj-invoice](https://mjml.io/documentation/#mjml-invoice) | `<mj-invoice></mj-invoice>` |
-| `mjinvoice-item` | [mj-invoice-item](https://mjml.io/documentation/#mjml-invoice) | `<mj-invoice-item name="" price="" quantity="" />` |
-| `mjlocation` | [mj-location](https://mjml.io/documentation/#mjml-location) | `<mj-location address="" />` |
-| `mjraw` | [mj-raw](https://mjml.io/documentation/#mjml-raw) | `<mj-raw></mj-raw>` |
-| `mjsection` | [mj-section](https://mjml.io/documentation/#mjml-section) | `<mj-section></mj-section>` |
-| `mjsocial` | [mj-social](https://mjml.io/documentation/#mjml-social) | `<mj-social />` |
-| `mjstyle` | [mj-style](https://mjml.io/documentation/#mjml-style) | `<mj-style></mj-style>` |
-| `mjtable` | [mj-table](https://mjml.io/documentation/#mjml-table) | `<mj-table></mj-table>` |
-| `mjtext` | [mj-text](https://mjml.io/documentation/#mjml-text) | `<mj-text></mj-text>` |
-| `mjtitle` | [mj-title](https://mjml.io/documentation/#mjml-title) | `<mj-title></mj-title>` |
-| `mjml` | [mjml](https://mjml.io/documentation/#mjml) | `<mjml></mjml>` |
-| `mjpreview` | [mj-preview](https://mjml.io/documentation/#mjml-preview) | `<mj-preview></mj-preview>` |
-| `mjspacer` | [mj-spacer](https://mjml.io/documentation/#mjml-spacer) | `<mj-spacer height="" />` |
-| `mjwrapper` | [mj-wrapper](https://mjml.io/documentation/#mjml-wrapper) | `<mj-wrapper></mj-wrapper>` |
-| `mjaccordion` | [mj-accordion](https://mjml.io/documentation/#mjml-accordion) | `<mj-accordion></mj-accordion>` |
-| `mjaccordion-element` | [mj-accordion-element](https://mjml.io/documentation/#mjml-accordion) | `<mj-accordion-element>...</mj-accordion-element>` |
-| `mjnavbar` | [mj-navbar](https://mjml.io/documentation/#mjml-navbar) | `<mj-navbar></mj-navbar>` |
-| `mjinline-links` | [mj-inline-links](https://mjml.io/documentation/#mjml-navbar) | `<mj-inline-links></mj-inline-links>` |
+| `mjall` | [mj-all](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-attributes/README.md) | `<mj-all />` |
+| `mjattributes` | [mj-attributes](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-attributes/README.md) | `<mj-attributes></mj-attributes>` |
+| `mjbody` | [mj-body](https://github.com/mjmlio/mjml/blob/master/packages/mjml-body/README.md) | `<mj-body></mj-body>` |
+| `mjbreakpoint` | [mj-breakpoint](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-breakpoint/README.md) | `<mj-breakpoint width="" />` |
+| `mjbutton` | [mj-button](https://github.com/mjmlio/mjml/blob/master/packages/mjml-button/README.md) | `<mj-button></mj-button>` |
+| `mjcarousel` | [mj-carousel](https://github.com/mjmlio/mjml/blob/master/packages/mjml-carousel/README.md) | `<mj-carousel></mj-carousel>` |
+| `mjcarousel-image` | [mj-carousel-image](https://github.com/mjmlio/mjml/blob/master/packages/mjml-carousel/README.md#mjml-carousel-image) | `<mj-carousel-image src="" />` |
+| `mjclass` | [mj-class](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-attributes/README.md) | `<mj-class name="" />` |
+| `mjcolumn` | [mj-column](https://github.com/mjmlio/mjml/blob/master/packages/mjml-column/README.md) | `<mj-column width=""></mj-column>` |
+| `mjdivider` | [mj-divider](https://github.com/mjmlio/mjml/blob/master/packages/mjml-divider/README.md) | `<mj-divider />` |
+| `mjfont` | [mj-font](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-font/README.md) | `<mj-font name="" href="" />` |
+| `mjgroup` | [mj-group](https://github.com/mjmlio/mjml/blob/master/packages/mjml-group/README.md) | `<mj-group></mj-group>` |
+| `mjhead` | [mj-head](https://github.com/mjmlio/mjml/blob/master/doc/guide.md#mj-head) | `<mj-head></mj-head>` |
+| `mjhero` | [mj-hero](https://github.com/mjmlio/mjml/blob/master/packages/mjml-hero/README.md) | `<mj-hero></mj-hero>` |
+| `mjimage` | [mj-image](https://github.com/mjmlio/mjml/blob/master/packages/mjml-image/README.md) | `<mj-image src="" alt="" />` |
+| `mjinclude` | [mj-include](https://github.com/mjmlio/mjml/blob/master/doc/guide.md#mj-include) | `<mj-include path="" />` |
+| `mjraw` | [mj-raw](https://github.com/mjmlio/mjml/blob/master/packages/mjml-raw/README.md) | `<mj-raw></mj-raw>` |
+| `mjsection` | [mj-section](https://github.com/mjmlio/mjml/blob/master/packages/mjml-section/README.md) | `<mj-section></mj-section>` |
+| `mjsocial` | [mj-social](https://github.com/mjmlio/mjml/blob/master/packages/mjml-social/README.md) | `<mj-social></mj-social>` |
+| `mjsocialelement` | [mj-social-element](https://github.com/mjmlio/mjml/blob/master/packages/mjml-social/README.md#mj-social-element) | `<mj-social-element></mj-social-element>` |
+| `mjstyle` | [mj-style](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-style/README.md) | `<mj-style></mj-style>` |
+| `mjtable` | [mj-table](https://github.com/mjmlio/mjml/blob/master/packages/mjml-table/README.md) | `<mj-table></mj-table>` |
+| `mjtext` | [mj-text](https://github.com/mjmlio/mjml/blob/master/packages/mjml-text/README.md) | `<mj-text></mj-text>` |
+| `mjtitle` | [mj-title](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-title/README.md) | `<mj-title></mj-title>` |
+| `mjml` | [mjml](https://github.com/mjmlio/mjml/blob/master/doc/guide.md#mjml) | `<mjml></mjml>` |
+| `mjpreview` | [mj-preview](https://github.com/mjmlio/mjml/blob/master/packages/mjml-head-preview/README.md) | `<mj-preview></mj-preview>` |
+| `mjspacer` | [mj-spacer](https://github.com/mjmlio/mjml/blob/master/packages/mjml-spacer/README.md) | `<mj-spacer height="" />` |
+| `mjwrapper` | [mj-wrapper](https://github.com/mjmlio/mjml/blob/master/packages/mjml-wrapper/README.md) | `<mj-wrapper></mj-wrapper>` |
+| `mjaccordion` | [mj-accordion](https://github.com/mjmlio/mjml/blob/master/packages/mjml-accordion/README.md) | `<mj-accordion></mj-accordion>` |
+| `mjaccordion-element` | [mj-accordion-element](https://github.com/mjmlio/mjml/blob/master/packages/mjml-accordion/README.md#mjml-accordion-element) | `<mj-accordion-element>...</mj-accordion-element>` |
+| `mjnavbar` | [mj-navbar](https://github.com/mjmlio/mjml/blob/master/packages/mjml-navbar/README.md) | `<mj-navbar></mj-navbar>` |
+| `mjnavbarlink` | [mj-navbar-link](https://github.com/mjmlio/mjml/blob/master/packages/mjml-navbar/README.md#mjml-navbar-link) | `<mj-navbar-link></mj-navbar-link>` |
 | `mjlink` | [mj-link](https://mjml.io/documentation/#mjml-navbar) | `<mj-link href=""></mj-link>` |
-| `mjlist` | [mj-list](https://github.com/mjmlio/mjml/tree/master/packages/mjml-list) | `<mj-list></mj-list>` |
 | `mjml-` | | Basic MJML Template |
 
 ## Change Log
+
+### [1.0.0] (2018-03-07)
+* [new] `MJML: Migrate`: Migrate a template from MJML 3 to MJML 4.
+* Change to [Semantic Versioning](https://semver.org/).
+* Some fixes.
+* MJML 4.0.0
 
 ### [0.1.0] (2017-12-14)
 * [new] `MJML: Beautify`: [#8](https://github.com/attilabuti/vscode-mjml/issues/8) Beautify MJML code.

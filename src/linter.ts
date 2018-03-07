@@ -2,7 +2,7 @@
 
 import * as vscode from "vscode";
 
-import { documentParser, MJMLValidator } from "mjml";
+import mjml2html = require("mjml");
 
 import helper from "./helper";
 
@@ -51,25 +51,13 @@ export default class MJMLLintingProvider {
         let diagnostics: vscode.Diagnostic[] = [];
 
         try {
-            let MJMLDocument: any;
-
-            try {
-                MJMLDocument = documentParser(vscode.window.activeTextEditor.document.getText());
-            } catch (err) {
-                return;
-            }
-
-            let body: any = MJMLDocument.children.find((root: any) => {
-                return root.tagName === "mj-body";
+            let { html, errors } = mjml2html(vscode.window.activeTextEditor.document.getText(), {
+                level: "strict",
+                filePath: vscode.window.activeTextEditor.document.uri.fsPath,
+                cwd: helper.getCWD()
             });
 
-            if (!body || !body.children || body.children.length == 0) {
-                return;
-            }
-
-            let report: any = MJMLValidator(body.children[0]);
-
-            report.forEach((err: any) => {
+            errors.forEach((err: any) => {
                 let line: number = err.line - 1;
                 let currentLine: string = vscode.window.activeTextEditor.document.lineAt(line).text;
 

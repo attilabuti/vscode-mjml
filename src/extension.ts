@@ -11,15 +11,19 @@ import CopyHTML from "./copy";
 import SendEmail from "./email";
 import ExportHTML from "./export";
 import LintingProvider from "./linter";
+import Migrate from "./migrate";
 import PreviewManager from "./preview";
 import Screenshot from "./screenshot";
 import Template from "./template";
+
+import helper from "./helper";
 
 let beautify: Beautify;
 let copyHTML: CopyHTML;
 let sendEmail: SendEmail;
 let exportHTML: ExportHTML;
 let linter: LintingProvider;
+let migrate: Migrate;
 let previewManager: PreviewManager;
 let screenshot: Screenshot;
 let template: Template;
@@ -61,6 +65,15 @@ export function activate(context: vscode.ExtensionContext) {
         screenshot = new Screenshot(context, process.platform, phantomJS.platform, phantomJSBuilt);
     }
 
+    // Detect MJML 3
+    vscode.workspace.onDidOpenTextDocument((document: vscode.TextDocument) => {
+        if (helper.isMJMLFile(document)) {
+            if (document.getText().indexOf('mj-container') > -1) {
+                vscode.window.showInformationMessage("MJML v3 syntax detected. Use \"MJML: Migrate\" to get the migrated MJML.");
+            }
+        }
+    }, null, context.subscriptions);
+
     if (vscode.workspace.getConfiguration("mjml").lintEnable) {
         linter = new LintingProvider(context.subscriptions);
     }
@@ -75,6 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
     copyHTML = new CopyHTML(context.subscriptions);
     sendEmail = new SendEmail(context.subscriptions);
     exportHTML = new ExportHTML(context.subscriptions);
+    migrate = new Migrate(context.subscriptions);
     previewManager = new PreviewManager(context);
     template = new Template(context.subscriptions);
 }
