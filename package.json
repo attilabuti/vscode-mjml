@@ -2,7 +2,7 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "attilabuti",
     "license": "MIT",
     "readme": "README.md",
@@ -148,11 +148,15 @@
                         "wrap_attributes_indent_size": 2
                     },
                     "description": "Beautify options."
+                },
+                "mjml.exportType": {
+                    "type": "string",
+                    "default": ".html",
+                    "description": "Specifies the file type of the output file."
                 }
             }
         },
-        "commands": [
-            {
+        "commands": [{
                 "command": "mjml.previewToSide",
                 "title": "Open Preview to the Side",
                 "category": "MJML",
@@ -202,31 +206,25 @@
                 "category": "MJML"
             }
         ],
-        "languages": [
-            {
-                "id": "mjml",
-                "extensions": [
-                    ".mjml"
-                ],
-                "aliases": [
-                    "mjml"
-                ]
-            }
-        ],
-        "snippets": [
-            {
-                "language": "mjml",
-                "path": "./snippets/mjml.json"
-            }
-        ],
-        "menus": {
-            "editor/title": [
-                {
-                    "when": "editorLangId == mjml",
-                    "command": "mjml.previewToSide",
-                    "group": "navigation"
-                }
+        "languages": [{
+            "id": "mjml",
+            "extensions": [
+                ".mjml"
+            ],
+            "aliases": [
+                "mjml"
             ]
+        }],
+        "snippets": [{
+            "language": "mjml",
+            "path": "./snippets/mjml.json"
+        }],
+        "menus": {
+            "editor/title": [{
+                "when": "editorLangId == mjml",
+                "command": "mjml.previewToSide",
+                "group": "navigation"
+            }]
         }
     },
     "scripts": {
@@ -245,7 +243,7 @@
     "dependencies": {
         "copy-paste": "^1.3.0",
         "file-url": "^2.0.2",
-        "mjml": "^4.0.0",
+        "mjml": "^4.0.2",
         "node-fetch": "2.1.1",
         "node-mailjet": "^3.2.1",
         "webshot": "^0.18.0",

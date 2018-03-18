@@ -2,6 +2,11 @@
 All notable changes to the "mjml" extension will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+### [1.1.0] (2018-03-18)
+* [new] Configuration property `mjml.exportType`: Specifies the file type of the output file.
+* `MJML: Export HTML`: allows to specify the exported file type (e.g. example.html or .pug).
+* MJML 4.0.2
+
 ### [1.0.0] (2018-03-07)
 * [new] `MJML: Migrate`: Migrate a template from MJML 3 to MJML 4.
 * Change to [Semantic Versioning](https://semver.org/).

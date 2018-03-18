@@ -66,6 +66,7 @@ The following command is available:
 | `mjml.mailSubject` | ` ` | Email subject. |
 | `mjml.mailRecipients` | ` ` | Comma separated list of recipients email addresses. |
 | `mjml.beautify` | ` ` | Beautify options ([available options](https://github.com/beautify-web/js-beautify#options)). |
+| `mjml.exportType` | `.html` | Specifies the file type of the output file. |
 
 ## Snippets
 
@@ -107,6 +108,11 @@ The following command is available:
 | `mjml-` | | Basic MJML Template |
 
 ## Change Log
+
+### [1.1.0] (2018-03-18)
+* [new] Configuration property `mjml.exportType`: Specifies the file type of the output file.
+* `MJML: Export HTML`: allows to specify the exported file type (e.g. example.html or .pug).
+* MJML 4.0.2
 
 ### [1.0.0] (2018-03-07)
 * [new] `MJML: Migrate`: Migrate a template from MJML 3 to MJML 4.
