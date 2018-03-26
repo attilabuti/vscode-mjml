@@ -2,6 +2,15 @@
 All notable changes to the "mjml" extension will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+### [1.2.0] (2018-03-26)
+* [new] Configuration property `mjml.mailer`: send email with Nodemailer or Mailjet. Possible values are 'nodemailer' and 'mailjet'.
+* [new] Configuration property `mjml.nodemailer`: Nodemailer configuration. Please see the [Nodemailer](https://nodemailer.com) documentation for more information.
+* Send email with Nodemailer.
+* Added support for inline images (automatically generated from local images).
+* New preview icon.
+* Some other improvements.
+* MJML 4.0.3
+
 ### [1.1.0] (2018-03-18)
 * [new] Configuration property `mjml.exportType`: Specifies the file type of the output file.
 * `MJML: Export HTML`: allows to specify the exported file type (e.g. example.html or .pug).

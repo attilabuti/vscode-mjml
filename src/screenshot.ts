@@ -53,7 +53,15 @@ export default class Screenshot {
                 screenshotType = vscode.workspace.getConfiguration("mjml").screenshotType;
             }
 
-            vscode.window.showInputBox({ placeHolder: `File name (${defaultFileName}.${screenshotType})` }).then((fileName: string) => {
+            vscode.window.showInputBox({
+                prompt: "Filename",
+                placeHolder: "Enter a filename.",
+                value: defaultFileName + '.' + screenshotType
+            }).then((fileName: string) => {
+                if (!fileName) {
+                    return;
+                }
+
                 fileName = fileName ? fileName.replace(/\.[^\.]+$/, "") : defaultFileName;
                 let file: string = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, `../${fileName}.${screenshotType}`);
 
@@ -73,8 +81,16 @@ export default class Screenshot {
                     }
                 }
                 else {
-                    vscode.window.showInputBox({ placeHolder: `Width (${defaultWidth}px)` }).then((width: any) => {
-                        width = width.replace(/[^0-9\.]+/g, "");
+                    vscode.window.showInputBox({
+                        prompt: "Width",
+                        placeHolder: `Enter image width (${defaultWidth}px).`,
+                        value: defaultWidth.toString()
+                    }).then((width: any) => {
+                        if (!width) {
+                            return;
+                        }
+
+                        width = parseInt(width.replace(/[^0-9\.]+/g, ""));
                         if (!width || Number.isNaN(parseInt(width))) {
                             width = defaultWidth;
                         }

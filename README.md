@@ -4,6 +4,7 @@ MJML preview, lint, compile for Visual Studio Code.
 [![GitHub license][license-img]][license-url]
 [![Visual Studio Marketplace][vs-market-version]][vs-market-url]
 [![Visual Studio Marketplace installs][vs-market-installs]][vs-market-url]
+[![Dependencies Status][dependencies-status]][dependencies-status]
 
 ## Features
 
@@ -12,7 +13,7 @@ MJML preview, lint, compile for Visual Studio Code.
 * Export HTML file from MJML.
 * Copy the result HTML to clipboard.
 * Take a screenshot of the rendered MJML document.
-* Send email with Mailjet.
+* Send email with Nodemailer or Mailjet.
 * Code snippets for MJML. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
 * Fetch official templates. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
 * Beautify MJML code.
@@ -35,38 +36,40 @@ Start command palette (with `Ctrl+Shift+P` or `F1`) and start typing `MJML`.
 ## Available commands
 
 The following command is available:
+* **MJML: Beautify** or **Format Document** Beautify MJML code.
+* **MJML: Copy HTML** Copy the result HTML to clipboard.
 * **MJML: Export HTML** Export HTML file from MJML.
+* **MJML: Migrate** Migrate a template from MJML 3 to MJML 4.
+* **MJML: Multiple Screenshots** Take multiple screenshots of the rendered MJML document.
 * **MJML: Open Preview to the Side** Opens a preview in a column alongside the current document.
 * **MJML: Screenshot** Take a screenshot of the rendered MJML document, and save it as a file.
-* **MJML: Multiple Screenshots** Take multiple screenshots of the rendered MJML document.
-* **MJML: Copy HTML** Copy the result HTML to clipboard.
-* **MJML: Send Email** Send email with Mailjet.
+* **MJML: Send Email** Send email with Nodemailer or Mailjet.
 * **MJML: Template** Fetch official templates.
-* **MJML: Beautify** or **Format Document** Beautify MJML code.
-* **MJML: Migrate** Migrate a template from MJML 3 to MJML 4.
 
 ## Settings
 
 | Name | Default | Description |
 | --- | --- | --- |
-| `mjml.lintEnable` | `true` | Enable/disable MJML linter (requires restart). |
-| `mjml.lintWhenTyping` | `true` | Whether the linter is run on type or on save. |
-| `mjml.updateWhenTyping` | `true` | Update preview when typing. |
-| `mjml.preserveFocus` | `true` | Preserve focus of Text Editor after preview open. |
-| `mjml.minifyHtmlOutput` | `true` | Minify HTML output. |
 | `mjml.beautifyHtmlOutput` | `false` | Beautify HTML output. (Works when `mjml.minifyHtmlOutput` aren't enabled.) |
-| `mjml.screenshotWidth` | `650` | Screenshot width. |
-| `mjml.screenshotWidths` | `640,750` | Screenshot widths. |
-| `mjml.screenshotType` | `jpg` | Screenshot type. Possible values are 'png', 'jpg', and 'jpeg'. |
-| `mjml.screenshotQuality` | `75` | Screenshot quality. |
-| `mjml.mailjetAPIKey` | ` ` | Mailjet API Key. |
-| `mjml.mailjetAPISecret` | ` ` | Mailjet API Secret. |
-| `mjml.mailSender` | ` ` | Sender email address. (Mailjet: must be a verified sender.) |
-| `mjml.mailFromName` | ` ` | Sender name. |
-| `mjml.mailSubject` | ` ` | Email subject. |
-| `mjml.mailRecipients` | ` ` | Comma separated list of recipients email addresses. |
 | `mjml.beautify` | ` ` | Beautify options ([available options](https://github.com/beautify-web/js-beautify#options)). |
 | `mjml.exportType` | `.html` | Specifies the file type of the output file. |
+| `mjml.lintEnable` | `true` | Enable/disable MJML linter (requires restart). |
+| `mjml.lintWhenTyping` | `true` | Whether the linter is run on type or on save. |
+| `mjml.mailFromName` | ` ` | Sender name. |
+| `mjml.mailRecipients` | ` ` | Comma separated list of recipients email addresses. |
+| `mjml.mailSender` | ` ` | Sender email address. (Mailjet: must be a verified sender.) |
+| `mjml.mailSubject` | ` ` | Email subject. |
+| `mjml.mailer` | `mailjet` | Send email with Nodemailer or Mailjet. Possible values are 'nodemailer' and 'mailjet'. |
+| `mjml.mailjetAPIKey` | ` ` | Mailjet API Key. |
+| `mjml.mailjetAPISecret` | ` ` | Mailjet API Secret. |
+| `mjml.minifyHtmlOutput` | `true` | Minify HTML output. |
+| `mjml.nodemailer` | `{}` | Nodemailer configuration. Please see the [Nodemailer](https://nodemailer.com) documentation for more information. |
+| `mjml.preserveFocus` | `true` | Preserve focus of Text Editor after preview open. |
+| `mjml.screenshotQuality` | `75` | Screenshot quality. |
+| `mjml.screenshotType` | `jpg` | Screenshot type. Possible values are 'png', 'jpg', and 'jpeg'. |
+| `mjml.screenshotWidth` | `650` | Screenshot width. |
+| `mjml.screenshotWidths` | `640,750` | Screenshot widths. |
+| `mjml.updateWhenTyping` | `true` | Update preview when typing. |
 
 ## Snippets
 
@@ -107,7 +110,55 @@ The following command is available:
 | `mjlink` | [mj-link](https://mjml.io/documentation/#mjml-navbar) | `<mj-link href=""></mj-link>` |
 | `mjml-` | | Basic MJML Template |
 
+## Nodemailer configuration
+
+Please see the [Nodemailer](https://nodemailer.com) documentation for more information.
+
+### [Gmail](https://gmail.com)
+```json
+"mjml.nodemailer": {
+    "service": "Gmail",
+    "auth": {
+        "user": "youremail@gmail.com",
+        "pass": "password"
+    }
+}
+```
+
+### [Mailtrap](https://mailtrap.io)
+```json
+"mjml.nodemailer": {
+    "host": "smtp.mailtrap.io",
+    "port": 2525,
+    "auth": {
+        "user": "username",
+        "pass": "password"
+    }
+}
+```
+
+### [Ethereal](https://ethereal.email)
+```json
+"mjml.nodemailer": {
+    "host": "smtp.ethereal.email",
+    "port": 587,
+    "auth": {
+        "user": "youremail@ethereal.email",
+        "pass": "password"
+    }
+}
+```
+
 ## Change Log
+
+### [1.2.0] (2018-03-26)
+* [new] Configuration property `mjml.mailer`: send email with Nodemailer or Mailjet. Possible values are 'nodemailer' and 'mailjet'.
+* [new] Configuration property `mjml.nodemailer`: Nodemailer configuration. Please see the [Nodemailer](https://nodemailer.com) documentation for more information.
+* Send email with Nodemailer.
+* Added support for inline images (automatically generated from local images).
+* New preview icon.
+* Some other improvements.
+* MJML 4.0.3
 
 ### [1.1.0] (2018-03-18)
 * [new] Configuration property `mjml.exportType`: Specifies the file type of the output file.
@@ -202,3 +253,4 @@ This extension is licensed under the [MIT License][license-url].
 [vs-market-version]: https://vsmarketplacebadge.apphb.com/version-short/attilabuti.vscode-mjml.svg?style=flat-square
 [vs-market-installs]: https://vsmarketplacebadge.apphb.com/installs/attilabuti.vscode-mjml.svg?style=flat-square
 [vs-market-url]: https://marketplace.visualstudio.com/items?itemName=attilabuti.vscode-mjml
+[dependencies-status]: https://david-dm.org/attilabuti/vscode-mjml/status.svg?style=flat-square

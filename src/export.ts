@@ -25,7 +25,15 @@ export default class ExportHTML {
                 exportType = "." + exportType;
             }
 
-            vscode.window.showInputBox({ placeHolder: `File name (${defaultFileName}${exportType} or .xyz)` }).then((fileName: string) => {
+            vscode.window.showInputBox({
+                prompt: "Filename",
+                placeHolder: `Enter a filename (${defaultFileName}${exportType} or .xyz).`,
+                value: defaultFileName + exportType
+            }).then((fileName: string) => {
+                if (!fileName) {
+                    return;
+                }
+
                 let fileExtension: any = (/[.]/.exec(fileName)) ? /[^.]+$/.exec(fileName) : undefined;
                 if (!fileExtension) {
                     fileName += exportType;
