@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Detect MJML 3
     vscode.workspace.onDidOpenTextDocument((document: vscode.TextDocument) => {
         if (helper.isMJMLFile(document)) {
-            if (document.getText().indexOf('mj-container') > -1) {
+            if (document.getText().indexOf("mj-container") > -1) {
                 vscode.window.showInformationMessage("MJML v3 syntax detected. Use \"MJML: Migrate\" to get the migrated MJML.");
             }
         }
@@ -79,7 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     beautify = new Beautify(context.subscriptions);
-    vscode.languages.registerDocumentFormattingEditProvider('mjml', {
+    vscode.languages.registerDocumentFormattingEditProvider("mjml", {
         provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
             return beautify.formatDocument();
         }

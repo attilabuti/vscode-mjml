@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
-import * as webshot from "webshot";
+import * as webshot from "ab-webshot";
 
 import helper from "./helper";
 
@@ -56,7 +56,7 @@ export default class Screenshot {
             vscode.window.showInputBox({
                 prompt: "Filename",
                 placeHolder: "Enter a filename.",
-                value: defaultFileName + '.' + screenshotType
+                value: defaultFileName + "." + screenshotType
             }).then((fileName: string) => {
                 if (!fileName) {
                     return;

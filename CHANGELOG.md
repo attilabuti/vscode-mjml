@@ -2,6 +2,10 @@
 All notable changes to the "mjml" extension will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+### [1.2.1] (2018-04-15)
+* [#24](https://github.com/attilabuti/vscode-mjml/issues/24): fixed.
+* Dependency updates.
+
 ### [1.2.0] (2018-03-26)
 * [new] Configuration property `mjml.mailer`: send email with Nodemailer or Mailjet. Possible values are 'nodemailer' and 'mailjet'.
 * [new] Configuration property `mjml.nodemailer`: Nodemailer configuration. Please see the [Nodemailer](https://nodemailer.com) documentation for more information.

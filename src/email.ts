@@ -52,7 +52,7 @@ export default class SendEmail {
                 let attachments: any[] = this.createAttachments(content, mjmlPath, mailer);
                 content = this.replaceImages(content, attachments, mailer);
 
-                if (mailer == 'nodemailer') {
+                if (mailer == "nodemailer") {
                     this.sendEmailWithNodemailer(subject, recipients, content, attachments);
                 }
                 else {
@@ -66,7 +66,7 @@ export default class SendEmail {
         let transportOptions: any = vscode.workspace.getConfiguration("mjml").nodemailer;
 
         nodemailer.createTransport(transportOptions).sendMail({
-            from: vscode.workspace.getConfiguration("mjml").mailFromName + ' <' + vscode.workspace.getConfiguration("mjml").mailSender + '>',
+            from: vscode.workspace.getConfiguration("mjml").mailFromName + " <" + vscode.workspace.getConfiguration("mjml").mailSender + ">",
             to: recipients,
             subject: subject,
             html: content,
@@ -79,7 +79,7 @@ export default class SendEmail {
 
             vscode.window.showInformationMessage("Mail has been sent successfully.");
 
-            if (transportOptions.host && transportOptions.host == 'smtp.ethereal.email') {
+            if (transportOptions.host && transportOptions.host == "smtp.ethereal.email") {
                 let url: (string | boolean) = nodemailer.getTestMessageUrl(info);
 
                 if (url) {
@@ -127,7 +127,7 @@ export default class SendEmail {
                     let filePath: string = path.join(path.dirname(mjmlPath), imgPaths[i]);
 
                     if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-                        if (mailer == 'nodemailer') {
+                        if (mailer == "nodemailer") {
                             attachments.push({
                                 originalPath: imgPaths[i],
                                 filename: path.basename(filePath),
@@ -139,8 +139,8 @@ export default class SendEmail {
                             attachments.push({
                                 originalPath: imgPaths[i],
                                 "Content-type": mime.getType(filePath),
-                                Filename: i + '_' + path.basename(filePath),
-                                content: fs.readFileSync(filePath).toString('base64')
+                                Filename: i + "_" + path.basename(filePath),
+                                content: fs.readFileSync(filePath).toString("base64")
                             });
                         }
                     }
@@ -156,7 +156,7 @@ export default class SendEmail {
             for (let i = 0; i < attachments.length; i++) {
                 content = content.replace(
                     "src=\"" + attachments[i].originalPath + "\"",
-                    "src=\"cid:" + ((mailer == 'nodemailer') ? attachments[i].cid : attachments[i].Filename) + "\""
+                    "src=\"cid:" + ((mailer == "nodemailer") ? attachments[i].cid : attachments[i].Filename) + "\""
                 );
             }
         }

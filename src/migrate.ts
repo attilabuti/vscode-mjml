@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 
-import migrate from 'mjml-migrate';
+import migrate from "mjml-migrate";
 
 import helper from "./helper";
 
