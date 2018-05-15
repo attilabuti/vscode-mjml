@@ -37,14 +37,18 @@ export default class Helper {
         return document.languageId === "mjml" && document.uri.scheme !== "mjml-preview";
     }
 
-    static mjml2html(mjml: string, minify: boolean, beautify: boolean): string {
+    static mjml2html(mjml: string, minify: boolean, beautify: boolean, mjmlPath?: string): string {
         try {
+            if (!mjmlPath) {
+                mjmlPath = this.getPath();
+            }
+
             let { html, errors } = mjml2html(mjml, {
                 level: "skip",
                 minify: minify,
                 beautify: beautify,
-                filePath: vscode.window.activeTextEditor.document.uri.fsPath,
-                cwd: this.getCWD()
+                filePath: mjmlPath,
+                cwd: this.getCWD(mjmlPath)
             });
 
             if (html) {
@@ -56,20 +60,20 @@ export default class Helper {
         }
     }
 
-    static getCWD(): string {
+    static getCWD(mjmlPath?: string): string {
         if (vscode.workspace.rootPath) {
             return vscode.workspace.rootPath;
         }
         else {
-            return path.parse(vscode.window.activeTextEditor.document.uri.fsPath).dir;
+            return (mjmlPath) ? path.parse(mjmlPath).dir : "";
         }
     }
 
-    static fixLinks(text: string): string {
+    static fixLinks(text: string, mjmlPath?: string): string {
         return text.replace(
             new RegExp(/((?:src|href|url)(?:=|\()(?:[\'\"]|))((?!http|\\|"|#).+?)([\'\"]|\))/, "gmi"),
             (subString: string, p1: string, p2: string, p3: string): string => {
-                return [p1, fileUrl(path.join(path.dirname(vscode.window.activeTextEditor.document.uri.fsPath), p2)), p3].join("");
+                return [p1, fileUrl(path.join(path.dirname(((mjmlPath) ? mjmlPath : this.getPath())), p2)), p3].join("");
             }
         );
     }
@@ -80,6 +84,15 @@ export default class Helper {
         } catch (err) {
             vscode.window.showErrorMessage(err);
             return;
+        }
+    }
+
+    static getPath(): string {
+        if (vscode.window.activeTextEditor.document) {
+            return vscode.window.activeTextEditor.document.uri.fsPath;
+        }
+        else {
+            return "";
         }
     }
 

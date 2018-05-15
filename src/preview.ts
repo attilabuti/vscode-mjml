@@ -9,27 +9,58 @@ export default class PreviewManager {
     private IDMap: IDMap = new IDMap();
     private fileMap: Map<string, MJMLView> = new Map<string, MJMLView>();
     private subscriptions: vscode.Disposable[];
+    private previewOpen: boolean = false;
 
     constructor(context: vscode.ExtensionContext) {
         this.subscriptions = context.subscriptions;
 
         this.subscriptions.push(
             vscode.commands.registerCommand("mjml.previewToSide", () => {
+                this.previewOpen = true;
                 this.previewCommand();
             }),
 
-            vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
-                this.removePreview(document);
+            vscode.workspace.onDidOpenTextDocument((document?: vscode.TextDocument) => {
+                if (vscode.workspace.getConfiguration("mjml").autoPreview) {
+                    if (document) {
+                        if (this.previewOpen && document.languageId == "mjml") {
+                            this.previewCommand(document);
+                        }
+                        else if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
+                            this.previewOpen = true;
+                        }
+                    }
+                }
             }),
+
+            vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
+                if (vscode.workspace.getConfiguration("mjml").autoPreview) {
+                    if (editor) {
+                        if (this.previewOpen && editor.document.languageId == "mjml") {
+                            this.previewCommand(editor.document);
+                        }
+                    }
+                }
+            }),
+
+            vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
+                if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
+                    this.previewOpen = false;
+                }
+                else {
+                    this.removePreview(document);
+                }
+            })
         );
     }
 
-    private previewCommand(): void {
-        let documentURI: string = this.IDMap.createDocumentUri(vscode.window.activeTextEditor.document.uri);
-        let mjmlPreview: MJMLView;
+    private previewCommand(document?: vscode.TextDocument): void {
+        let documentURI: string = this.IDMap.createDocumentUri(((document) ? document.uri : vscode.window.activeTextEditor.document.uri));
 
+        let mjmlPreview: MJMLView;
         if (!this.IDMap.hasUri(documentURI)) {
-            mjmlPreview = new MJMLView(vscode.window.activeTextEditor.document);
+            mjmlPreview = new MJMLView(((document) ? document : vscode.window.activeTextEditor.document));
+
             this.fileMap.set(this.IDMap.add(documentURI, mjmlPreview.uri), mjmlPreview);
         }
         else {
@@ -114,10 +145,12 @@ class MJMLView {
                 }
             }),
 
-            vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor) => {
-                if (this.document.uri === editor.document.uri) {
-                    if (helper.isMJMLFile(editor.document)) {
-                        this.provider.update(this.previewUri);
+            vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
+                if (editor) {
+                    if (this.document.uri === editor.document.uri) {
+                        if (helper.isMJMLFile(editor.document)) {
+                            this.provider.update(this.previewUri);
+                        }
                     }
                 }
             })
@@ -183,10 +216,10 @@ class PreviewContentProvider implements vscode.TextDocumentContentProvider {
     }
 
     private renderMJML(): string {
-        let html: string = helper.mjml2html(this.document.getText(), false, false);
+        let html: string = helper.mjml2html(this.document.getText(), false, false, this.document.uri.fsPath);
 
         if (html) {
-            return helper.fixLinks(html);
+            return helper.fixLinks(html, this.document.uri.fsPath);
         }
 
         return this.error("Active editor doesn't show a MJML document.");

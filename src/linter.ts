@@ -14,9 +14,11 @@ export default class MJMLLintingProvider {
     constructor(subscriptions: vscode.Disposable[]) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
 
-        vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor) => {
-            if (helper.isMJMLFile(editor.document)) {
-                this.doMJMllint(editor.document);
+        vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
+            if (editor) {
+                if (helper.isMJMLFile(editor.document)) {
+                    this.doMJMllint(editor.document);
+                }
             }
         }, this, subscriptions);
 

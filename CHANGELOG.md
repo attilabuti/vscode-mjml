@@ -2,6 +2,11 @@
 All notable changes to the "mjml" extension will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+### [1.3.0] (2018-05-15)
+* [new] Configuration property `mjml.autoPreview`: Automatically update preview when switching between MJML documents.
+* MJML 4.0.5
+* Various fixes and other improvements.
+
 ### [1.2.1] (2018-04-15)
 * [#24](https://github.com/attilabuti/vscode-mjml/issues/24): fixed.
 * Dependency updates.
