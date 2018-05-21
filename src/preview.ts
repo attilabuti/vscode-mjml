@@ -216,7 +216,7 @@ class PreviewContentProvider implements vscode.TextDocumentContentProvider {
     }
 
     private renderMJML(): string {
-        let html: string = helper.mjml2html(this.document.getText(), false, false, this.document.uri.fsPath);
+        let html: string = helper.mjml2html(this.document.getText(), false, false, this.document.uri.fsPath).html;
 
         if (html) {
             return helper.fixLinks(html, this.document.uri.fsPath);
