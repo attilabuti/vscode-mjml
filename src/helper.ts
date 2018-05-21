@@ -48,7 +48,7 @@ export default class Helper {
                 minify: minify,
                 beautify: beautify,
                 filePath: mjmlPath,
-                cwd: this.getCWD(mjmlPath)
+                configPath: this.getCWD(mjmlPath)
             });
 
             if (html) {
