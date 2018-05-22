@@ -53,7 +53,7 @@ export default class Helper {
 
         }
         catch (err) {
-            return;
+            return { html: '', errors: [err] };
         }
     }
 
