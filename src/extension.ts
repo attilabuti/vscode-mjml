@@ -2,8 +2,8 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
-import * as childProcess from "child_process";
 
+import * as npm from "npm";
 import * as phantomJS from "phantomjs-prebuilt";
 
 import Beautify from "./beautify";
@@ -42,18 +42,20 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage("MJML needs to be rebuilt for your current platform. Please wait for the installation to finish...");
             process.chdir(path.join(__dirname, ".."));
 
-            childProcess.exec("npm --strict-ssl false rebuild phantomjs-prebuilt", {
-                env: env
-            }, (error: Error, stdout: string, stderr: string) => {
-                if (!error && !stderr) {
-                    phantomJSBuilt = true;
-                    vscode.window.showInformationMessage("MJML's been updated. Please restart VSCode in order to continue using MJML.");
-                }
-                else {
-                    vscode.window.showErrorMessage("MJML couldn't build the propper version of PhantomJS. Restart VSCode in order to try it again.");
-                }
+            npm.load({
+                loglevel: "silent"
+            }, (err: any) => {
+                npm.commands.rebuild(["phantomjs-prebuilt"], (err: any, done: any) => {
+                    if (!err) {
+                        phantomJSBuilt = true;
+                        vscode.window.showInformationMessage("MJML's been updated. Please restart VSCode in order to continue using MJML.");
+                    }
+                    else {
+                        vscode.window.showErrorMessage("MJML couldn't build the propper version of PhantomJS. Restart VSCode in order to try it again.");
+                    }
 
-                screenshot = new Screenshot(context, process.platform, phantomJS.platform, phantomJSBuilt);
+                    screenshot = new Screenshot(context, process.platform, phantomJS.platform, phantomJSBuilt);
+                });
             });
         }
         catch (err) {
@@ -66,10 +68,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // Detect MJML 3
-    vscode.workspace.onDidOpenTextDocument((document: vscode.TextDocument) => {
-        if (helper.isMJMLFile(document)) {
-            if (document.getText().indexOf("mj-container") > -1) {
-                vscode.window.showInformationMessage("MJML v3 syntax detected. Use \"MJML: Migrate\" to get the migrated MJML.");
+    vscode.workspace.onDidOpenTextDocument((document?: vscode.TextDocument) => {
+        if (document) {
+            if (helper.isMJMLFile(document)) {
+                if (document.getText().indexOf("mj-container") > -1) {
+                    vscode.window.showInformationMessage("MJML v3 syntax detected. Use \"MJML: Migrate\" to get the migrated MJML.");
+                }
             }
         }
     }, null, context.subscriptions);
@@ -79,7 +83,10 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     beautify = new Beautify(context.subscriptions);
-    vscode.languages.registerDocumentFormattingEditProvider("mjml", {
+    vscode.languages.registerDocumentFormattingEditProvider({
+        scheme: "file",
+        language: "mjml"
+    }, {
         provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
             return beautify.formatDocument();
         }

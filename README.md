@@ -152,6 +152,12 @@ Please see the [Nodemailer](https://nodemailer.com) documentation for more infor
 
 ## Change Log
 
+### [1.4.0] (2018-07-14)
+* [#30](https://github.com/attilabuti/vscode-mjml/issues/30): fixed PhantomJS rebuild issue.
+* [#27](https://github.com/attilabuti/vscode-mjml/issues/27) [#31](https://github.com/attilabuti/vscode-mjml/issues/31): fixed rendering issue.
+* MJML 4.1.0
+* Some other improvements.
+
 ### [1.3.0] (2018-05-15)
 * [new] Configuration property `mjml.autoPreview`: Automatically update preview when switching between MJML documents.
 * MJML 4.0.5

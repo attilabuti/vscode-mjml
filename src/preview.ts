@@ -1,6 +1,7 @@
 "use strict";
 
 import * as vscode from "vscode";
+import * as path from "path";
 
 import helper from "./helper";
 
@@ -10,6 +11,7 @@ export default class PreviewManager {
     private fileMap: Map<string, MJMLView> = new Map<string, MJMLView>();
     private subscriptions: vscode.Disposable[];
     private previewOpen: boolean = false;
+    private activeDocument: string;
 
     constructor(context: vscode.ExtensionContext) {
         this.subscriptions = context.subscriptions;
@@ -24,7 +26,10 @@ export default class PreviewManager {
                 if (vscode.workspace.getConfiguration("mjml").autoPreview) {
                     if (document) {
                         if (this.previewOpen && document.languageId == "mjml") {
-                            this.previewCommand(document);
+                            if (this.activeDocument != document.uri.fsPath) {
+                                this.activeDocument = document.uri.fsPath;
+                                this.previewCommand(document);
+                            }
                         }
                         else if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
                             this.previewOpen = true;
@@ -37,18 +42,24 @@ export default class PreviewManager {
                 if (vscode.workspace.getConfiguration("mjml").autoPreview) {
                     if (editor) {
                         if (this.previewOpen && editor.document.languageId == "mjml") {
-                            this.previewCommand(editor.document);
+                            if (this.activeDocument != editor.document.uri.fsPath) {
+                                this.activeDocument = editor.document.uri.fsPath;
+                                this.previewCommand(editor.document);
+                            }
                         }
                     }
                 }
             }),
 
-            vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
-                if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
-                    this.previewOpen = false;
-                }
-                else {
-                    this.removePreview(document);
+            vscode.workspace.onDidCloseTextDocument((document?: vscode.TextDocument) => {
+                if (document) {
+                    if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
+                        this.previewOpen = false;
+                        this.activeDocument = "";
+                    }
+                    else {
+                        this.removePreview(document);
+                    }
                 }
             })
         );
@@ -122,7 +133,7 @@ class MJMLView {
         this.previewUri = this.createUri(document.uri);
         this.viewColumn = vscode.ViewColumn.Two;
 
-        this.label = "MJML Preview";
+        this.label = "MJML Preview - " + path.basename(document.fileName);
 
         this.registerEvents();
     }
@@ -168,7 +179,7 @@ class MJMLView {
             if (this.viewColumn === 2) {
                 if (vscode.workspace.getConfiguration("mjml").preserveFocus) {
                     // Preserve focus of Text Editor after preview open
-                    vscode.window.showTextDocument(this.document);
+                    vscode.window.showTextDocument(this.document, vscode.ViewColumn.One);
                 }
             }
         }, (reason: string) => {
