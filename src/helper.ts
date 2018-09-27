@@ -19,7 +19,7 @@ export default class Helper {
             vscode.window.activeTextEditor.document.getText(),
             minify != undefined ? minify : vscode.workspace.getConfiguration("mjml").minifyHtmlOutput,
             beautify != undefined ? beautify : vscode.workspace.getConfiguration("mjml").beautifyHtmlOutput,
-        );
+        ).html;
 
         if (content) {
             if (fixLinks != undefined && fixLinks) {
@@ -37,26 +37,23 @@ export default class Helper {
         return document.languageId === "mjml" && document.uri.scheme !== "mjml-preview";
     }
 
-    static mjml2html(mjml: string, minify: boolean, beautify: boolean, mjmlPath?: string): string {
+    static mjml2html(mjml: string, minify: boolean, beautify: boolean, mjmlPath?: string, level: 'skip' | 'strict' | 'ignore' = 'skip' ): { html: string, errors: any[] } {
         try {
             if (!mjmlPath) {
                 mjmlPath = this.getPath();
             }
 
-            let { html, errors } = mjml2html(mjml, {
-                level: "skip",
+            return mjml2html(mjml, {
+                level: level,
                 minify: minify,
                 beautify: beautify,
                 filePath: mjmlPath,
-                cwd: this.getCWD(mjmlPath)
+                configPath: this.getCWD(mjmlPath)
             });
 
-            if (html) {
-                return html;
-            }
         }
         catch (err) {
-            return;
+            return { html: '', errors: [err] };
         }
     }
 

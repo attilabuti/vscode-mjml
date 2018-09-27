@@ -2,8 +2,6 @@
 
 import * as vscode from "vscode";
 
-import mjml2html = require("mjml");
-
 import helper from "./helper";
 
 export default class MJMLLintingProvider {
@@ -53,11 +51,8 @@ export default class MJMLLintingProvider {
         let diagnostics: vscode.Diagnostic[] = [];
 
         try {
-            let { html, errors } = mjml2html(vscode.window.activeTextEditor.document.getText(), {
-                level: "strict",
-                filePath: vscode.window.activeTextEditor.document.uri.fsPath,
-                cwd: helper.getCWD()
-            });
+            let filePath = helper.getPath();
+            let { html, errors } = helper.mjml2html(vscode.window.activeTextEditor.document.getText(), false, false, filePath, "strict");
 
             errors.forEach((err: any) => {
                 let line: number = err.line - 1;
