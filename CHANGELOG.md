@@ -2,6 +2,22 @@
 All notable changes to the "mjml" extension will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+### [1.5.0] (2018-09-28)
+* [new] Configuration property `mjml.previewBackgroundColor`: preview background color ([#39](https://github.com/attilabuti/vscode-mjml/issues/39)).
+* [new] Configuration property `mjml.showSaveDialog`: show the save as dialog instead of input box.
+* [new] Configuration property `mjml.autoClosePreview`: automatically close preview when all open MJML documents have been closed.
+* [new] `MJML: Documentation`: open the MJML documentation.
+* [new] `MJML: Search in MJML documentation`: search for the selected mj-element in the MJML documentation.
+* [#38](https://github.com/attilabuti/vscode-mjml/issues/38): added support for beautify mj-style.
+* [#35](https://github.com/attilabuti/vscode-mjml/issues/35): show more useful information on error in sending the email.
+* [#29](https://github.com/attilabuti/vscode-mjml/pull/29): merged pull request.
+* MJML syntax highlight with CSS support.
+* The `PreviewManager` has been completely rewritten.
+* Built-in MJML documentation with `Try it live` support.
+* `Search in MJML documentation` from context menu.
+* MJML 4.1.2
+* Some other improvements.
+
 ### [1.4.0] (2018-07-14)
 * [#30](https://github.com/attilabuti/vscode-mjml/issues/30): fixed PhantomJS rebuild issue.
 * [#27](https://github.com/attilabuti/vscode-mjml/issues/27) [#31](https://github.com/attilabuti/vscode-mjml/issues/31): fixed rendering issue.

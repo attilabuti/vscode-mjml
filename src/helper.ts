@@ -37,7 +37,7 @@ export default class Helper {
         return document.languageId === "mjml" && document.uri.scheme !== "mjml-preview";
     }
 
-    static mjml2html(mjml: string, minify: boolean, beautify: boolean, mjmlPath?: string, level: 'skip' | 'strict' | 'ignore' = 'skip' ): { html: string, errors: any[] } {
+    static mjml2html(mjml: string, minify: boolean, beautify: boolean, mjmlPath?: string, level: "skip" | "strict" | "ignore" = "skip" ): { html: string, errors: any[] } {
         try {
             if (!mjmlPath) {
                 mjmlPath = this.getPath();
@@ -48,12 +48,11 @@ export default class Helper {
                 minify: minify,
                 beautify: beautify,
                 filePath: mjmlPath,
-                configPath: this.getCWD(mjmlPath)
+                mjmlConfigPath: this.getCWD(mjmlPath)
             });
-
         }
         catch (err) {
-            return { html: '', errors: [err] };
+            return { html: "", errors: [err] };
         }
     }
 
@@ -77,11 +76,26 @@ export default class Helper {
 
     static beautifyHTML(mjml: string): any {
         try {
-            return beautifyJS.html(mjml, vscode.workspace.getConfiguration("mjml").beautify);
+            mjml = beautifyJS.html(mjml.replace(/mj-style/g, "style"), vscode.workspace.getConfiguration("mjml").beautify);
+            let tmp: RegExpExecArray = /<.*mj-head.*>[\s\S]+<.*\/.*mj-head.*>/gim.exec(mjml);
+
+            return mjml.replace(tmp[0], tmp[0].replace(/style/gi, "mj-style"));
         } catch (err) {
             vscode.window.showErrorMessage(err);
             return;
         }
+    }
+
+    static setBackgroundColor(html: string): string {
+        if (vscode.workspace.getConfiguration("mjml").previewBackgroundColor) {
+            let tmp: RegExpExecArray = /<.*head.*>/i.exec(html);
+
+            if (tmp && tmp[0]) {
+                html = html.replace(tmp[0], `${tmp[0]}\n<style>html, body { background-color: ${vscode.workspace.getConfiguration("mjml").previewBackgroundColor}; }</style>`);
+            }
+        }
+
+        return html;
     }
 
     static getPath(): string {

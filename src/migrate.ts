@@ -37,7 +37,7 @@ export default class Migrate {
                 if (content) {
                     fs.writeFile(file, content, (err: NodeJS.ErrnoException) => {
                         if (err) {
-                            vscode.window.showErrorMessage("Something went wrong.");
+                            vscode.window.showErrorMessage(err.message);
                         }
                         else {
                             vscode.window.showInformationMessage(`${inputFileName} was converted to the MJML 4 syntax in ${fileName}_v4.mjml`);

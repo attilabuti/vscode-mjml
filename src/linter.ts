@@ -51,7 +51,7 @@ export default class MJMLLintingProvider {
         let diagnostics: vscode.Diagnostic[] = [];
 
         try {
-            let filePath = helper.getPath();
+            let filePath: string = helper.getPath();
             let { html, errors } = helper.mjml2html(vscode.window.activeTextEditor.document.getText(), false, false, filePath, "strict");
 
             errors.forEach((err: any) => {

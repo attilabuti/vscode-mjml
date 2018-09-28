@@ -1,3 +1,6 @@
 out
 node_modules
+documentation/*
+!documentation/build.ts
+!documentation/tsconfig.json
 *.vsix

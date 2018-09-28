@@ -18,6 +18,8 @@ MJML preview, lint, compile for Visual Studio Code.
 * Fetch official templates. Based on [mjml-app](https://github.com/mjmlio/mjml-app).
 * Beautify MJML code.
 * Migrate a template from MJML 3 to MJML 4.
+* MJML syntax highlight. Based on [mjml-syntax](https://github.com/mjmlio/mjml-syntax).
+* Built-in MJML documentation with `Try it live` support.
 
 ## It looks like this
 
@@ -45,6 +47,8 @@ The following command is available:
 * **MJML: Screenshot** Take a screenshot of the rendered MJML document, and save it as a file.
 * **MJML: Send Email** Send email with Nodemailer or Mailjet.
 * **MJML: Template** Fetch official templates.
+* **MJML: Documentation** open the MJML documentation.
+* **MJML: Search in MJML documentation** search for the selected mj-element in the MJML documentation.
 
 ## Settings
 
@@ -71,6 +75,9 @@ The following command is available:
 | `mjml.screenshotWidth` | `650` | Screenshot width. |
 | `mjml.screenshotWidths` | `640,750` | Screenshot widths. |
 | `mjml.updateWhenTyping` | `true` | Update preview when typing. |
+| `mjml.previewBackgroundColor` | ` ` | Preview background color. |
+| `mjml.autoClosePreview` | `true` | Automatically close preview when all open MJML documents have been closed. |
+| `mjml.showSaveDialog` | `false` | Show the save as dialog instead of input box. |
 
 ## Snippets
 
@@ -151,6 +158,22 @@ Please see the [Nodemailer](https://nodemailer.com) documentation for more infor
 ```
 
 ## Change Log
+
+### [1.5.0] (2018-09-28)
+* [new] Configuration property `mjml.previewBackgroundColor`: preview background color ([#39](https://github.com/attilabuti/vscode-mjml/issues/39)).
+* [new] Configuration property `mjml.showSaveDialog`: show the save as dialog instead of input box.
+* [new] Configuration property `mjml.autoClosePreview`: automatically close preview when all open MJML documents have been closed.
+* [new] `MJML: Documentation`: open the MJML documentation.
+* [new] `MJML: Search in MJML documentation`: search for the selected mj-element in the MJML documentation.
+* [#38](https://github.com/attilabuti/vscode-mjml/issues/38): added support for beautify mj-style.
+* [#35](https://github.com/attilabuti/vscode-mjml/issues/35): show more useful information on error in sending the email.
+* [#29](https://github.com/attilabuti/vscode-mjml/pull/29): merged pull request.
+* MJML syntax highlight with CSS support.
+* The `PreviewManager` has been completely rewritten.
+* Built-in MJML documentation with `Try it live` support.
+* `Search in MJML documentation` from context menu.
+* MJML 4.1.2
+* Some other improvements.
 
 ### [1.4.0] (2018-07-14)
 * [#30](https://github.com/attilabuti/vscode-mjml/issues/30): fixed PhantomJS rebuild issue.
@@ -259,14 +282,15 @@ A big thanks to the people that have contributed to this project:
 
 - Christian Brevik ([@cbrevik](https://github.com/cbrevik)) - [contributions](https://github.com/attilabuti/vscode-mjml/commits?author=cbrevik))
 - Kevin Oliveira ([@kvnol](https://github.com/kvnol)) - [contributions](https://github.com/attilabuti/vscode-mjml/commits?author=kvnol))
+- Joshua Skrzypek ([@jskrzypek](https://github.com/jskrzypek)) - [contributions](https://github.com/attilabuti/vscode-mjml/commits?author=jskrzypek))
 
 ## License
 
 This extension is licensed under the [MIT License][license-url].
 
-[license-img]: https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square
+[license-img]: https://img.shields.io/github/license/attilabuti/vscode-mjml.svg?style=flat-square
 [license-url]: https://raw.githubusercontent.com/attilabuti/vscode-mjml/master/LICENSE
-[vs-market-version]: https://vsmarketplacebadge.apphb.com/version-short/attilabuti.vscode-mjml.svg?style=flat-square
-[vs-market-installs]: https://vsmarketplacebadge.apphb.com/installs/attilabuti.vscode-mjml.svg?style=flat-square
+[vs-market-version]: https://img.shields.io/vscode-marketplace/v/attilabuti.vscode-mjml.svg?style=flat-square
+[vs-market-installs]: https://img.shields.io/vscode-marketplace/d/attilabuti.vscode-mjml.svg?style=flat-square
 [vs-market-url]: https://marketplace.visualstudio.com/items?itemName=attilabuti.vscode-mjml
 [dependencies-status]: https://david-dm.org/attilabuti/vscode-mjml/status.svg?style=flat-square

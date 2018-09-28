@@ -7,11 +7,10 @@ import helper from "./helper";
 
 export default class PreviewManager {
 
-    private IDMap: IDMap = new IDMap();
-    private fileMap: Map<string, MJMLView> = new Map<string, MJMLView>();
+    private webview: vscode.WebviewPanel | undefined;
     private subscriptions: vscode.Disposable[];
     private previewOpen: boolean = false;
-    private activeDocument: string;
+    private openedDocuments: string[] = [];
 
     constructor(context: vscode.ExtensionContext) {
         this.subscriptions = context.subscriptions;
@@ -19,218 +18,105 @@ export default class PreviewManager {
         this.subscriptions.push(
             vscode.commands.registerCommand("mjml.previewToSide", () => {
                 this.previewOpen = true;
-                this.previewCommand();
+                this.displayWebView(this.getWebviewContent());
             }),
 
             vscode.workspace.onDidOpenTextDocument((document?: vscode.TextDocument) => {
-                if (vscode.workspace.getConfiguration("mjml").autoPreview) {
+                if (this.previewOpen && vscode.workspace.getConfiguration("mjml").autoPreview) {
                     if (document) {
-                        if (this.previewOpen && document.languageId == "mjml") {
-                            if (this.activeDocument != document.uri.fsPath) {
-                                this.activeDocument = document.uri.fsPath;
-                                this.previewCommand(document);
-                            }
-                        }
-                        else if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
-                            this.previewOpen = true;
+                        if (document.languageId == "mjml") {
+                            this.displayWebView(this.getWebviewContent(document));
                         }
                     }
                 }
             }),
 
             vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
-                if (vscode.workspace.getConfiguration("mjml").autoPreview) {
+                if (this.previewOpen && vscode.workspace.getConfiguration("mjml").autoPreview) {
                     if (editor) {
-                        if (this.previewOpen && editor.document.languageId == "mjml") {
-                            if (this.activeDocument != editor.document.uri.fsPath) {
-                                this.activeDocument = editor.document.uri.fsPath;
-                                this.previewCommand(editor.document);
-                            }
+                        if (editor.document.languageId == "mjml") {
+                            this.displayWebView(this.getWebviewContent(editor.document));
                         }
                     }
                 }
             }),
 
             vscode.workspace.onDidCloseTextDocument((document?: vscode.TextDocument) => {
-                if (document) {
-                    if (document.fileName.replace(/\\/g, "/") == "/mjml-preview/sidebyside/") {
-                        this.previewOpen = false;
-                        this.activeDocument = "";
-                    }
-                    else {
-                        this.removePreview(document);
-                    }
-                }
-            })
-        );
-    }
+                if (this.previewOpen) {
+                    if (document) {
+                        this.removeDocument(document.fileName);
 
-    private previewCommand(document?: vscode.TextDocument): void {
-        let documentURI: string = this.IDMap.createDocumentUri(((document) ? document.uri : vscode.window.activeTextEditor.document.uri));
-
-        let mjmlPreview: MJMLView;
-        if (!this.IDMap.hasUri(documentURI)) {
-            mjmlPreview = new MJMLView(((document) ? document : vscode.window.activeTextEditor.document));
-
-            this.fileMap.set(this.IDMap.add(documentURI, mjmlPreview.uri), mjmlPreview);
-        }
-        else {
-            mjmlPreview = this.fileMap.get(this.IDMap.getByUri(documentURI));
-        }
-
-        mjmlPreview.execute();
-    }
-
-    private removePreview(document: vscode.TextDocument): void {
-        if (/mjml-preview/.test(document.fileName) && /sidebyside/.test(document.fileName)) {
-            this.dispose();
-            this.fileMap.clear();
-            this.IDMap.clear();
-        }
-        else {
-            let documentURI: string = this.IDMap.createDocumentUri(document.uri);
-
-            if (this.IDMap.hasUri(documentURI)) {
-                let mjmlPreview: MJMLView = this.fileMap.get(this.IDMap.getByUri(documentURI));
-
-                let id: string = this.IDMap.delete(documentURI, mjmlPreview.uri);
-                this.dispose(id);
-                this.fileMap.delete(id);
-            }
-        }
-    }
-
-    public dispose(id?: string): void {
-        let values: IterableIterator<MJMLView> = this.fileMap.values();
-        let value: IteratorResult<MJMLView> = values.next();
-
-        if (id && this.fileMap.has(id)) {
-            this.fileMap.get(id).dispose();
-        }
-        else {
-            while (!value.done) {
-                value.value.dispose();
-                value = values.next();
-            }
-        }
-    }
-
-}
-
-class MJMLView {
-
-    private subscriptions: vscode.Disposable[] = [];
-    private document: vscode.TextDocument;
-    private provider: PreviewContentProvider;
-    private previewUri: vscode.Uri;
-    private viewColumn: vscode.ViewColumn;
-    private label: string;
-
-    constructor(document: vscode.TextDocument) {
-        this.document = document;
-        this.provider = new PreviewContentProvider(this.document);
-
-        this.previewUri = this.createUri(document.uri);
-        this.viewColumn = vscode.ViewColumn.Two;
-
-        this.label = "MJML Preview - " + path.basename(document.fileName);
-
-        this.registerEvents();
-    }
-
-    private registerEvents(): void {
-        this.subscriptions.push(
-            vscode.workspace.registerTextDocumentContentProvider("mjml-preview", this.provider),
-
-            vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
-                if (helper.isMJMLFile(document)) {
-                    this.provider.update(this.previewUri);
-                }
-            }),
-
-            vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
-                if (vscode.workspace.getConfiguration("mjml").updateWhenTyping) {
-                    if (helper.isMJMLFile(event.document)) {
-                        this.provider.update(this.previewUri);
-                    }
-                }
-            }),
-
-            vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
-                if (editor) {
-                    if (this.document.uri === editor.document.uri) {
-                        if (helper.isMJMLFile(editor.document)) {
-                            this.provider.update(this.previewUri);
+                        if (this.openedDocuments.length == 0 && vscode.workspace.getConfiguration("mjml").autoClosePreview) {
+                            this.webview.dispose();
                         }
                     }
                 }
+            }),
+
+            vscode.workspace.onDidChangeTextDocument((event?: vscode.TextDocumentChangeEvent) => {
+                if (this.previewOpen && vscode.workspace.getConfiguration("mjml").updateWhenTyping) {
+                    if (event) {
+                        if (event.document.languageId == "mjml") {
+                            this.displayWebView(this.getWebviewContent(event.document));
+                        }
+                    }
+                }
+            }),
+
+            vscode.workspace.onDidSaveTextDocument((document?: vscode.TextDocument) => {
+                if (this.previewOpen && document) {
+                    if (document.languageId == "mjml") {
+                        this.displayWebView(this.getWebviewContent(document));
+                    }
+                }
             })
         );
     }
 
-    public dispose(): void {
-        for (let i = 0; i < this.subscriptions.length; i++) {
-            this.subscriptions[i].dispose();
+    private displayWebView(content: string): void {
+        let label: string = "MJML Preview";
+        if (vscode.window.activeTextEditor.document) {
+            label = `MJML Preview - ${path.basename(vscode.window.activeTextEditor.document.fileName)}`;
         }
-    }
 
-    public execute(): void {
-        vscode.commands.executeCommand("vscode.previewHtml", this.previewUri, this.viewColumn, this.label).then((success: boolean) => {
-            if (this.viewColumn === 2) {
-                if (vscode.workspace.getConfiguration("mjml").preserveFocus) {
-                    // Preserve focus of Text Editor after preview open
-                    vscode.window.showTextDocument(this.document, vscode.ViewColumn.One);
-                }
-            }
-        }, (reason: string) => {
-            vscode.window.showErrorMessage(reason);
-        });
-    }
+        if (!this.webview) {
+            this.webview = vscode.window.createWebviewPanel("mjml-preview", label, vscode.ViewColumn.Two, {
+                retainContextWhenHidden: true
+            });
 
-    public get uri(): vscode.Uri {
-        return this.previewUri;
-    }
+            this.webview.webview.html = content;
 
-    private createUri(uri: vscode.Uri): vscode.Uri {
-        return vscode.Uri.parse("mjml-preview://authority/mjml-preview/sidebyside/");
-    }
+            this.webview.onDidDispose(() => {
+                this.webview = undefined;
+                this.previewOpen = false;
+            }, null, this.subscriptions);
 
-}
-
-class PreviewContentProvider implements vscode.TextDocumentContentProvider {
-
-    private _onDidChange: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter<vscode.Uri>();
-    private document: vscode.TextDocument;
-
-    constructor(document: vscode.TextDocument) {
-        this.document = document;
-    }
-
-    get onDidChange(): vscode.Event<vscode.Uri> {
-        return this._onDidChange.event;
-    }
-
-    public update(uri: vscode.Uri): void {
-        if (/mjml-preview/.test(uri.fsPath) && /sidebyside/.test(uri.fsPath)) {
-            if (vscode.window.activeTextEditor.document.fileName == this.document.fileName) {
-                this._onDidChange.fire(uri);
+            if (vscode.workspace.getConfiguration("mjml").preserveFocus) {
+                // Preserve focus of Text Editor after preview open
+                vscode.window.showTextDocument(vscode.window.activeTextEditor.document, vscode.ViewColumn.One);
             }
         }
+        else {
+            this.webview.title = label;
+            this.webview.webview.html = content;
+        }
     }
 
-    public provideTextDocumentContent(uri: vscode.Uri): string {
-        if (this.document.languageId !== "mjml") {
-            return this.error("Active editor doesn't show a MJML document.");
+    private getWebviewContent(document?: vscode.TextDocument): string {
+        let previewDocument: vscode.TextDocument;
+        if (document) {
+            previewDocument = document;
+        }
+        else {
+            previewDocument = vscode.window.activeTextEditor.document;
         }
 
-        return this.renderMJML();
-    }
-
-    private renderMJML(): string {
-        let html: string = helper.mjml2html(this.document.getText(), false, false, this.document.uri.fsPath).html;
+        let html: string = helper.mjml2html(previewDocument.getText(), false, false, previewDocument.uri.fsPath, "skip").html;
 
         if (html) {
-            return helper.fixLinks(html, this.document.uri.fsPath);
+            this.addDocument(previewDocument.fileName);
+
+            return helper.setBackgroundColor(helper.fixLinks(html, previewDocument.uri.fsPath));
         }
 
         return this.error("Active editor doesn't show a MJML document.");
@@ -240,63 +126,24 @@ class PreviewContentProvider implements vscode.TextDocumentContentProvider {
         return `<body>${error}</body>`;
     }
 
-}
-
-class IDMap {
-
-    private map: Map<[string, vscode.Uri], string> = new Map<[string, vscode.Uri], string>();
-
-    public clear(): void {
-        this.map.clear();
+    private addDocument(fileName: string): void {
+        if (this.openedDocuments.indexOf(fileName) == -1) {
+            this.openedDocuments.push(fileName);
+        }
     }
 
-    private UUIDv4(): string {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c: string) => {
-            let r: number = Math.random() * 16 | 0, v: number = c == "x" ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+    private removeDocument(fileName: string): void {
+        this.openedDocuments = this.openedDocuments.filter(e => e !== fileName);
     }
 
-    public createDocumentUri(uri: vscode.Uri): string {
-        return JSON.stringify({ uri: uri });
-    }
-
-    public getByUri(uri: string, remove?: boolean): any {
-        let keys: IterableIterator<[string, vscode.Uri]> = this.map.keys();
-        let key: IteratorResult<[string, vscode.Uri]> = keys.next();
-
-        while (!key.done) {
-            if (key.value.indexOf(uri) > -1) {
-                if (remove) {
-                    return key.value;
-                }
-                else {
-                    return this.map.get(key.value);
-                }
-            }
-
-            key = keys.next();
+    public dispose(): void {
+        if (this.webview !== undefined) {
+            this.webview.dispose();
         }
 
-        return undefined;
-    }
-
-    public hasUri(uri: string): boolean {
-        return this.getByUri(uri) != undefined;
-    }
-
-    public add(documentUri: string, previewUri: vscode.Uri): string {
-        let id: string = this.UUIDv4();
-        this.map.set([documentUri, previewUri], id);
-
-        return id;
-    }
-
-    public delete(uri: string, previewUri: vscode.Uri): string {
-        let id: string = this.getByUri(uri);
-        this.map.delete(this.getByUri(uri, true));
-
-        return id;
+        for (let s of this.subscriptions) {
+            s.dispose();
+        }
     }
 
 }

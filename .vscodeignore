@@ -6,6 +6,10 @@ src/**
 **/*.map
 .gitignore
 images/**/*.gif
+documentation/**
+!documentation/examples/*
+!documentation/images/*
+!documentation/documentation.html
 tsconfig.json
 vsc-extension-quickstart.md
 tslint.json

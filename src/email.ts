@@ -73,7 +73,7 @@ export default class SendEmail {
             attachments: attachments
         }, (err: Error, info: any) => {
             if (err) {
-                vscode.window.showErrorMessage("Something went wrong.");
+                vscode.window.showErrorMessage(err.message);
                 return;
             }
 
@@ -83,7 +83,7 @@ export default class SendEmail {
                 let url: (string | boolean) = nodemailer.getTestMessageUrl(info);
 
                 if (url) {
-                    vscode.window.showInformationMessage("Preview URL: " + url);
+                    vscode.window.showInformationMessage(`Preview URL: ${url}`);
                 }
             }
         });
@@ -107,7 +107,7 @@ export default class SendEmail {
         }).then((result: object) => {
             vscode.window.showInformationMessage("Mail has been sent successfully.");
         }).catch((err: any) => {
-            vscode.window.showErrorMessage("Something went wrong.");
+            vscode.window.showErrorMessage(err.message);
         });
     }
 
