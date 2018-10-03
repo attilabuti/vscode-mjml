@@ -2,9 +2,10 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
+import * as fs from "fs";
 
 import * as beautifyJS from "js-beautify";
-import fileUrl = require("file-url");
+import * as mime from "mime";
 import mjml2html = require("mjml");
 
 export default class Helper {
@@ -65,11 +66,27 @@ export default class Helper {
         }
     }
 
+    static encodeImage(filePath: string, original: string): string {
+        let mimeType: string = mime.getType(filePath);
+        if (!mimeType || ["bmp", "gif", "jpeg", "jpg", "png", "svg"].indexOf(mime.getExtension(mimeType)) == -1) {
+            return original;
+        }
+
+        if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            let data: Buffer = fs.readFileSync(filePath);
+            if (data) {
+                return `data:${mimeType};base64,${data.toString("base64")}`;
+            }
+        }
+
+        return original;
+    }
+
     static fixLinks(text: string, mjmlPath?: string): string {
         return text.replace(
             new RegExp(/((?:src|href|url)(?:=|\()(?:[\'\"]|))((?!http|\\|"|#).+?)([\'\"]|\))/, "gmi"),
             (subString: string, p1: string, p2: string, p3: string): string => {
-                return [p1, fileUrl(path.join(path.dirname(((mjmlPath) ? mjmlPath : this.getPath())), p2)), p3].join("");
+                return [p1, this.encodeImage(path.join(path.dirname(((mjmlPath) ? mjmlPath : this.getPath())), p2), p2), p3].join("");
             }
         );
     }

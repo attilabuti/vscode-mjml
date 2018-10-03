@@ -159,6 +159,10 @@ Please see the [Nodemailer](https://nodemailer.com) documentation for more infor
 
 ## Change Log
 
+### [1.5.1] (2018-10-03)
+* [#41](https://github.com/attilabuti/vscode-mjml/issues/41): fixed preview issue.
+* [#40](https://github.com/attilabuti/vscode-mjml/issues/40): fixed comment issue.
+
 ### [1.5.0] (2018-09-28)
 * [new] Configuration property `mjml.previewBackgroundColor`: preview background color ([#39](https://github.com/attilabuti/vscode-mjml/issues/39)).
 * [new] Configuration property `mjml.showSaveDialog`: show the save as dialog instead of input box.

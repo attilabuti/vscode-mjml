@@ -232,7 +232,7 @@ async function tryItLive(html: string): Promise<string> {
         if (tryItLive.indexOf(match[2]) == -1) {
             let response = await fetch(match[1]);
 
-            let mjmlMatch = /"value":*?["']([\s\S]*?)["']*?}/gi.exec(await response.text());
+            let mjmlMatch: RegExpExecArray = /"value":*?["']([\s\S]*?)["']*?"}/gi.exec(await response.text());
 
             mjmlMatch[1].replace(/\\"/g, "\"").replace(/src="\/(assets\/img)\/(.*?)"/gi, "src=\"https://mjml.io/assets/img/$2\"").split("\\n").forEach((line) => {
                 fs.appendFileSync(`./examples/${fileName}.mjml`, line.replace(/\\/g, "").toString() + "\n");
