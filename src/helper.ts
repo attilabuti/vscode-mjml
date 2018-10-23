@@ -93,10 +93,7 @@ export default class Helper {
 
     static beautifyHTML(mjml: string): any {
         try {
-            mjml = beautifyJS.html(mjml.replace(/mj-style/g, "style"), vscode.workspace.getConfiguration("mjml").beautify);
-            let tmp: RegExpExecArray = /<.*mj-head.*>[\s\S]+<.*\/.*mj-head.*>/gim.exec(mjml);
-
-            return mjml.replace(tmp[0], tmp[0].replace(/style/gi, "mj-style"));
+            return beautifyJS.html(mjml, vscode.workspace.getConfiguration("mjml").beautify);
         } catch (err) {
             vscode.window.showErrorMessage(err);
             return;
