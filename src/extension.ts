@@ -1,108 +1,55 @@
-"use strict";
-
-import * as vscode from "vscode";
-import * as path from "path";
-
-import * as npm from "npm";
-import * as phantomJS from "phantomjs-prebuilt";
+import { ExtensionContext, TextDocument, window, workspace } from "vscode";
 
 import Beautify from "./beautify";
-import CopyHTML from "./copy";
+import Copy from "./copy";
 import Documentation from "./documentation";
-import SendEmail from "./email";
-import ExportHTML from "./export";
-import LintingProvider from "./linter";
+import Email from "./email";
+import Export from "./export";
+import Linter from "./linter";
 import Migrate from "./migrate";
-import PreviewManager from "./preview";
+import Preview from "./preview";
 import Screenshot from "./screenshot";
 import Template from "./template";
+import Version from "./version";
 
-import helper from "./helper";
+import { isMJMLFile } from "./helper";
 
-let beautify: Beautify;
-let copyHTML: CopyHTML;
-let documentation: Documentation;
-let sendEmail: SendEmail;
-let exportHTML: ExportHTML;
-let linter: LintingProvider;
-let migrate: Migrate;
-let previewManager: PreviewManager;
-let screenshot: Screenshot;
-let template: Template;
+let context: ExtensionContext;
+let extensionFeatures: object[] = [];
 
-export function activate(context: vscode.ExtensionContext) {
-    // Gets a value indicating whether PhantomJS could be built
-    let phantomJSBuilt: any = undefined;
+export function activate(extensionContext: ExtensionContext) {
+    context = extensionContext;
 
-    // Rebuilding PhantomJS if required
-    if (phantomJS.platform != process.platform) {
-        try {
-            let env: NodeJS.ProcessEnv = process.env;
-            env["PHANTOMJS_PLATFORM"] = process.platform;
-            env["PHANTOMJS_ARCH"] = process.arch;
-
-            vscode.window.showInformationMessage("MJML needs to be rebuilt for your current platform. Please wait for the installation to finish...");
-            process.chdir(path.join(__dirname, ".."));
-
-            npm.load({
-                loglevel: "silent"
-            }, (err: any) => {
-                npm.commands.rebuild(["phantomjs-prebuilt"], (err: any, done: any) => {
-                    if (!err) {
-                        phantomJSBuilt = true;
-                        vscode.window.showInformationMessage("MJML's been updated. Please restart VSCode in order to continue using MJML.");
-                    }
-                    else {
-                        vscode.window.showErrorMessage("MJML couldn't build the propper version of PhantomJS. Restart VSCode in order to try it again.");
-                    }
-
-                    screenshot = new Screenshot(context, process.platform, phantomJS.platform, phantomJSBuilt);
-                });
-            });
-        }
-        catch (err) {
-            vscode.window.showErrorMessage("MJML couldn't build the propper version of PhantomJS. Restart VSCode in order to try it again.");
-            phantomJSBuilt = false;
-        }
-    }
-    else {
-        screenshot = new Screenshot(context, process.platform, phantomJS.platform, phantomJSBuilt);
-    }
+    extensionFeatures = [
+        new Beautify(context.subscriptions),
+        new Copy(context.subscriptions),
+        new Documentation(context),
+        new Email(context.subscriptions),
+        new Export(context.subscriptions),
+        new Linter(context.subscriptions),
+        new Migrate(context.subscriptions),
+        new Preview(context),
+        new Screenshot(context.subscriptions),
+        new Template(context),
+        new Version(context.subscriptions)
+    ];
 
     // Detect MJML 3
-    vscode.workspace.onDidOpenTextDocument((document?: vscode.TextDocument) => {
-        if (document) {
-            if (helper.isMJMLFile(document)) {
-                if (document.getText().indexOf("mj-container") > -1) {
-                    vscode.window.showInformationMessage(`MJML v3 syntax detected. Use "MJML: Migrate" to get the migrated MJML.`);
-                }
-            }
+    workspace.onDidOpenTextDocument((document?: TextDocument) => {
+        if (document && isMJMLFile(document) && document.getText().indexOf("mj-container") > -1) {
+            window.showInformationMessage(`MJML v3 syntax detected. Use "MJML: Migrate" to get the migrated MJML.`);
         }
     }, null, context.subscriptions);
-
-    if (vscode.workspace.getConfiguration("mjml").lintEnable) {
-        linter = new LintingProvider(context.subscriptions);
-    }
-
-    beautify = new Beautify(context.subscriptions);
-    vscode.languages.registerDocumentFormattingEditProvider({
-        scheme: "file",
-        language: "mjml"
-    }, {
-        provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-            return beautify.formatDocument();
-        }
-    });
-
-    copyHTML = new CopyHTML(context.subscriptions);
-    documentation = new Documentation(context);
-    sendEmail = new SendEmail(context.subscriptions);
-    exportHTML = new ExportHTML(context.subscriptions);
-    migrate = new Migrate(context.subscriptions);
-    previewManager = new PreviewManager(context);
-    template = new Template(context.subscriptions);
 }
 
 export function deactivate() {
-    previewManager.dispose();
+    for (const feature of extensionFeatures) {
+        if (typeof (feature as any).dispose === "function") {
+            (feature as any).dispose();
+        }
+    }
+
+    for (const subscription of context.subscriptions) {
+        subscription.dispose();
+    }
 }

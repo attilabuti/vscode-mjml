@@ -3,8 +3,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as fetch from "node-fetch";
 import * as hljs from "highlight.js";
+import * as fetch from "node-fetch";
 
 const md = require("markdown-it")({
     html: true,

@@ -49,6 +49,7 @@ The following command is available:
 * **MJML: Template** Fetch official templates.
 * **MJML: Documentation** open the MJML documentation.
 * **MJML: Search in MJML documentation** search for the selected mj-element in the MJML documentation.
+* **MJML: Version** Shows the version of MJML.
 
 ## Settings
 
@@ -78,6 +79,8 @@ The following command is available:
 | `mjml.previewBackgroundColor` | ` ` | Preview background color. |
 | `mjml.autoClosePreview` | `true` | Automatically close preview when all open MJML documents have been closed. |
 | `mjml.showSaveDialog` | `false` | Show the save as dialog instead of input box. |
+| `mjml.templateGallery` | `false` | Show the template gallery instead of quick pick. |
+| `mjml.templateGalleryAutoClose` | `true` | Automatically close template gallery when selecting a template. |
 
 ## Snippets
 
@@ -158,6 +161,15 @@ Please see the [Nodemailer](https://nodemailer.com) documentation for more infor
 ```
 
 ## Change Log
+
+### [1.6.0] (2018-10-28)
+* [new] Configuration property `mjml.templateGallery`: Show the template gallery instead of quick pick.
+* [new] Configuration property `mjml.templateGalleryAutoClose`: Automatically close template gallery when selecting a template.
+* [#42](https://github.com/attilabuti/vscode-mjml/issues/42) [#43](https://github.com/attilabuti/vscode-mjml/issues/43): fixed beautify issues.
+* [new] [#47](https://github.com/attilabuti/vscode-mjml/issues/47) `MJML: Version`: Shows the version of MJML.
+* .mjmlconfig is working again.
+* MJML 4.2.0
+* Other improvements and bugfixes.
 
 ### [1.5.1] (2018-10-03)
 * [#41](https://github.com/attilabuti/vscode-mjml/issues/41): fixed preview issue.

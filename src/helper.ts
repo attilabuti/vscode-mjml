@@ -1,127 +1,136 @@
-"use strict";
+import { existsSync, readFileSync, statSync } from "fs";
+import { basename, dirname, join as joinPath, parse as parsePath } from "path";
+import { TextDocument, TextEditor, window, workspace } from "vscode";
 
-import * as vscode from "vscode";
-import * as path from "path";
-import * as fs from "fs";
+import { html as jsBeautify } from "js-beautify";
+import { getExtension, getType as getMimeType } from "mime";
+import mjml2html from "mjml";
 
-import * as beautifyJS from "js-beautify";
-import * as mime from "mime";
-import mjml2html = require("mjml");
+export function renderMJML(cb: (content: string) => any, fixImg?: boolean, minify?: boolean, beautify?: boolean): void {
+    const activeTextEditor: TextEditor | undefined = window.activeTextEditor;
+    if (!activeTextEditor) {
+        return;
+    }
 
-export default class Helper {
+    if (!isMJMLFile(activeTextEditor.document)) {
+        window.showWarningMessage("This is not a MJML document!");
 
-    static renderMJML(cb: (content: string) => any, fixLinks?: boolean, minify?: boolean, beautify?: boolean): any {
-        if (!(this.isMJMLFile(vscode.window.activeTextEditor.document))) {
-            vscode.window.showWarningMessage("This is not a MJML document!");
-            return;
+        return;
+    }
+
+    let content: string = mjmlToHtml(
+        activeTextEditor.document.getText(),
+        minify !== undefined ? minify : workspace.getConfiguration("mjml").minifyHtmlOutput,
+        beautify !== undefined ? beautify : workspace.getConfiguration("mjml").beautifyHtmlOutput
+    ).html;
+
+    if (content) {
+        if (fixImg !== undefined && fixImg) {
+            content = fixImages(content, getPath());
         }
 
-        let content: string = this.mjml2html(
-            vscode.window.activeTextEditor.document.getText(),
-            minify != undefined ? minify : vscode.workspace.getConfiguration("mjml").minifyHtmlOutput,
-            beautify != undefined ? beautify : vscode.workspace.getConfiguration("mjml").beautifyHtmlOutput,
-        ).html;
+        return cb(content);
+    } else {
+        window.showErrorMessage(`MJMLError: Failed to parse file ${basename(getPath())}`);
+    }
+}
 
-        if (content) {
-            if (fixLinks != undefined && fixLinks) {
-                content = this.fixLinks(content);
+export function isMJMLFile(document: TextDocument): boolean {
+    return document.languageId === "mjml" && (document.uri.scheme === "file" || document.uri.scheme === "untitled");
+}
+
+export function mjmlToHtml(
+    mjml: string, minify: boolean, beautify: boolean, path?: string, validation: "strict" | "soft" | "skip" = "skip"
+): { html: string, errors: any[] } {
+    try {
+        if (!path) {
+            path = getPath();
+        }
+
+        return mjml2html(mjml, {
+            beautify,
+            filePath: path,
+            minify,
+            mjmlConfigPath: getCWD(path),
+            validationLevel: validation
+        });
+    } catch (error) {
+        return { html: "", errors: [error] };
+    }
+}
+
+export function fixImages(text: string, mjmlPath: string): string {
+    return text.replace(
+        new RegExp(/((?:src|url)(?:=|\()(?:[\'\"]|))((?!http|\\|"|#).+?)([\'\"]|\))/, "gmi"),
+        (_1: string, start: string, src: string, end: string): string => {
+            return start + encodeImage(joinPath(dirname(mjmlPath), src), src) + end;
+        }
+    );
+}
+
+export function beautifyHTML(mjml: string): string | undefined {
+    try {
+        const replaced: string = mjml.replace(
+            new RegExp(/<.*mj-style[^>]*>(?:[^<>]+)<.*\/.*mj-style>/, "gmi"), (style: string): string => {
+                return style.replace(/mj-style/gi, "style");
             }
+        );
 
-            return cb(content);
+        const beautified: string = jsBeautify(replaced, workspace.getConfiguration("mjml").beautify);
+
+        if (replaced !== mjml) {
+            return beautified.replace(
+                new RegExp(/<.*style[^>]*>(?:[^<>]+)<.*\/.*style>/, "gmi"), (styleBlock: string): string => {
+                    return styleBlock.replace(
+                        new RegExp(/<.*style.*>/, "gi"), (style: string): string => {
+                            return style.replace("style", "mj-style");
+                        }
+                    );
+                }
+            );
         }
-        else {
-            vscode.window.showErrorMessage(`MJMLError: Failed to parse file ${path.basename(vscode.window.activeTextEditor.document.uri.fsPath)}`);
-        }
+
+        return beautified;
+    } catch (error) {
+        window.showErrorMessage(error);
+
+        return;
+    }
+}
+
+export function getPath(): string {
+    if (window.activeTextEditor && window.activeTextEditor.document) {
+        return window.activeTextEditor.document.uri.fsPath;
     }
 
-    static isMJMLFile(document: vscode.TextDocument): boolean {
-        return document.languageId === "mjml" && document.uri.scheme !== "mjml-preview";
+    return "";
+}
+
+function getCWD(mjmlPath?: string): string {
+    if (workspace.rootPath) {
+        return workspace.rootPath;
     }
 
-    static mjml2html(mjml: string, minify: boolean, beautify: boolean, mjmlPath?: string, level: "skip" | "strict" | "ignore" = "skip" ): { html: string, errors: any[] } {
-        try {
-            if (!mjmlPath) {
-                mjmlPath = this.getPath();
-            }
+    return (mjmlPath) ? parsePath(mjmlPath).dir : "";
+}
 
-            return mjml2html(mjml, {
-                level: level,
-                minify: minify,
-                beautify: beautify,
-                filePath: mjmlPath,
-                mjmlConfigPath: this.getCWD(mjmlPath)
-            });
-        }
-        catch (err) {
-            return { html: "", errors: [err] };
-        }
-    }
-
-    static getCWD(mjmlPath?: string): string {
-        if (vscode.workspace.rootPath) {
-            return vscode.workspace.rootPath;
-        }
-        else {
-            return (mjmlPath) ? path.parse(mjmlPath).dir : "";
-        }
-    }
-
-    static encodeImage(filePath: string, original: string): string {
-        let mimeType: string = mime.getType(filePath);
-        if (!mimeType || ["bmp", "gif", "jpeg", "jpg", "png", "svg"].indexOf(mime.getExtension(mimeType)) == -1) {
-            return original;
-        }
-
-        if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-            let data: Buffer = fs.readFileSync(filePath);
-            if (data) {
-                return `data:${mimeType};base64,${data.toString("base64")}`;
-            }
-        }
-
+function encodeImage(filePath: string, original: string): string {
+    const mimeType: string | null = getMimeType(filePath);
+    if (!mimeType) {
         return original;
     }
 
-    static fixLinks(text: string, mjmlPath?: string): string {
-        return text.replace(
-            new RegExp(/((?:src|href|url)(?:=|\()(?:[\'\"]|))((?!http|\\|"|#).+?)([\'\"]|\))/, "gmi"),
-            (subString: string, p1: string, p2: string, p3: string): string => {
-                return [p1, this.encodeImage(path.join(path.dirname(((mjmlPath) ? mjmlPath : this.getPath())), p2), p2), p3].join("");
-            }
-        );
+    const extension: string | null = getExtension(mimeType);
+    if (!extension || ["bmp", "gif", "jpeg", "jpg", "png", "svg"].indexOf(extension) === -1) {
+        return original;
     }
 
-    static beautifyHTML(mjml: string): any {
-        try {
-            mjml = beautifyJS.html(mjml.replace(/mj-style/g, "style"), vscode.workspace.getConfiguration("mjml").beautify);
-            let tmp: RegExpExecArray = /<.*mj-head.*>[\s\S]+<.*\/.*mj-head.*>/gim.exec(mjml);
-
-            return mjml.replace(tmp[0], tmp[0].replace(/style/gi, "mj-style"));
-        } catch (err) {
-            vscode.window.showErrorMessage(err);
-            return;
+    if (filePath && existsSync(filePath) && statSync(filePath).isFile()) {
+        const data: Buffer = readFileSync(filePath);
+        if (data) {
+            return `data:${mimeType};base64,${data.toString("base64")}`;
         }
     }
 
-    static setBackgroundColor(html: string): string {
-        if (vscode.workspace.getConfiguration("mjml").previewBackgroundColor) {
-            let tmp: RegExpExecArray = /<.*head.*>/i.exec(html);
-
-            if (tmp && tmp[0]) {
-                html = html.replace(tmp[0], `${tmp[0]}\n<style>html, body { background-color: ${vscode.workspace.getConfiguration("mjml").previewBackgroundColor}; }</style>`);
-            }
-        }
-
-        return html;
-    }
-
-    static getPath(): string {
-        if (vscode.window.activeTextEditor.document) {
-            return vscode.window.activeTextEditor.document.uri.fsPath;
-        }
-        else {
-            return "";
-        }
-    }
-
+    return original;
 }

@@ -1,50 +1,54 @@
-"use strict";
+import { commands, Disposable, languages, Position, Range, TextDocument, TextEdit, TextEditor, TextEditorEdit, window } from "vscode";
 
-import * as vscode from "vscode";
-
-import helper from "./helper";
+import { beautifyHTML, isMJMLFile } from "./helper";
 
 export default class Beautify {
 
-    constructor(subscriptions: vscode.Disposable[]) {
+    constructor(subscriptions: Disposable[]) {
         subscriptions.push(
-            vscode.commands.registerCommand("mjml.beautify", () => {
+            languages.registerDocumentFormattingEditProvider({
+                language: "mjml",
+                scheme: "file"
+            }, {
+                provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
+                    const formattedDocument: string | undefined = beautifyHTML(document.getText());
+                    if (formattedDocument) {
+                        return [ TextEdit.replace(getRange(document), formattedDocument) ];
+                    }
+
+                    return [ TextEdit.replace(getRange(document), document.getText()) ];
+                }
+            }),
+
+            commands.registerCommand("mjml.beautify", () => {
                 this.beautify();
             })
         );
     }
 
     private beautify(): void {
-        if (helper.isMJMLFile(vscode.window.activeTextEditor.document)) {
-            vscode.window.activeTextEditor.edit((editBuilder: vscode.TextEditorEdit) => {
-                editBuilder.replace(
-                    this.getRange(),
-                    helper.beautifyHTML(vscode.window.activeTextEditor.document.getText())
-                );
+        const activeTextEditor: TextEditor | undefined = window.activeTextEditor;
+
+        if (activeTextEditor && isMJMLFile(activeTextEditor.document)) {
+            activeTextEditor.edit((editBuilder: TextEditorEdit) => {
+                const formattedDocument: string | undefined = beautifyHTML(activeTextEditor.document.getText());
+
+                if (formattedDocument) {
+                    editBuilder.replace(getRange(activeTextEditor.document), formattedDocument);
+                }
             });
-        }
-        else {
-            vscode.window.showWarningMessage("This is not a MJML document!");
+        } else {
+            window.showWarningMessage("This is not a MJML document!");
+
             return;
         }
     }
 
-    private getRange(): vscode.Range {
-        let document: vscode.TextDocument = vscode.window.activeTextEditor.document;
+}
 
-        return new vscode.Range(
-            new vscode.Position(0, 0),
-            new vscode.Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length)
-        );
-    }
-
-    public formatDocument(): vscode.TextEdit[] {
-        return [
-            vscode.TextEdit.replace(
-                this.getRange(),
-                helper.beautifyHTML(vscode.window.activeTextEditor.document.getText())
-            )
-        ];
-    }
-
+function getRange(document: TextDocument): Range {
+    return new Range(
+        new Position(0, 0),
+        new Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length)
+    );
 }

@@ -1,6 +1,61 @@
 {
+    "extends": [
+        "tslint:recommended"
+    ],
     "rules": {
-        "no-unused-variable": true,
-        "no-unused-expression": true       
+        "class-name": true,
+        "curly": true,
+        "import-spacing": true,
+        "indent": [
+            true, "spaces", 4
+        ],
+        "max-line-length": [
+            true, {
+                "limit": 120,
+                "ignore-pattern": "^import |^export {(.*?)}"
+            }
+        ],
+        "no-unused-expression": true,
+        "no-var-keyword": true,
+        "semicolon": [
+            true, "always"
+        ],
+        "trailing-comma": [
+            true, {
+                "multiline": "never",
+                "singleline": "never"
+            }
+        ],
+        "triple-equals": true,
+        "space-within-parens": true,
+        "no-irregular-whitespace": true,
+        "no-boolean-literal-compare": true,
+        "newline-before-return": true,
+        "linebreak-style": [
+            true, "LF"
+        ],
+        "interface-name": [
+            true, "never-prefix"
+        ],
+        "no-conditional-assignment": false,
+        "whitespace": [
+            true,
+            "check-branch",
+            "check-decl",
+            "check-module",
+            "check-operator",
+            "check-preblock",
+            "check-rest-spread",
+            "check-separator",
+            "check-type-operator",
+            "check-type",
+            "check-typecast"
+        ]
+    },
+    "linterOptions": {
+        "exclude": [
+            "./documentation/*",
+            "./node_modules/*"
+        ]
     }
 }

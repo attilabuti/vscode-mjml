@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MJML Templates</title>
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        function createFile(data) {
+            vscode.postMessage({
+                command: "createFile",
+                data: data
+            });
+        }
+    </script>
+    <style>
+        .wrapper {
+            height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .template {
+            display: flex;
+            justify-content: start;
+            align-items: flex-end;
+            width: 250px;
+            height: 300px;
+            margin: 10px;
+            background-repeat: no-repeat;
+            background-position: top center;
+            background-size: 100% auto;
+            filter: grayscale(100%);
+            cursor: pointer;
+            transition: all 0.6s ease;
+            opacity: 0.6;
+        }
+
+        .vscode-light .template {
+            background-color: #dddddd;
+        }
+
+        .vscode-dark .template {
+            background-color: #ffffff;
+        }
+
+        .template:hover {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .name {
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #f25f4a;
+            padding: 3px 5px 3px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        {{templates}}
+    </div>
+</body>
+</html>

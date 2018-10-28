@@ -1,111 +1,129 @@
-"use strict";
-
-import * as vscode from "vscode";
-import * as path from "path";
-import * as fs from "fs";
-
-export interface WebviewMessage {
-    command: string;
-    data: string;
-}
+import { existsSync, readFileSync, statSync } from "fs";
+import { join as joinPath } from "path";
+import { commands, ExtensionContext, TextDocument, TextEditor, Uri, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 
 export default class Documentation {
 
-    protected context: vscode.ExtensionContext;
-    protected webview: vscode.WebviewPanel | undefined;
-    protected content: string;
+    private content: string = "";
+    private context: ExtensionContext;
+    private webview: WebviewPanel | undefined;
+    private webviewViewColumn: ViewColumn | undefined;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: ExtensionContext) {
         this.context = context;
-        let documentationPath: string = path.join(__dirname, "../documentation/documentation.html");
+        this.webviewViewColumn = ViewColumn.Two;
 
         context.subscriptions.push(
-            vscode.commands.registerCommand("mjml.documentation", () => {
-                if (documentationPath && fs.existsSync(documentationPath) && fs.statSync(documentationPath).isFile()) {
-                    this.displayWebView(this.getWebviewContent(documentationPath));
-                    this.handleEvents();
-                }
+            commands.registerCommand("mjml.documentation", () => {
+                this.displayWebView();
             }),
 
-            vscode.commands.registerCommand("mjml.searchInDocumentation", () => {
-                let text: string = vscode.window.activeTextEditor.document.getText(vscode.window.activeTextEditor.selection);
-                let anchor: string = text.replace(/((\/|\<|\>)|^\s+|(\r?\n|\r)|\s.*)/gi, "").replace("mj-", "#mjml-");
-                if (!anchor.startsWith("#mjml-")) {
-                    anchor = `#mjml-${anchor}`;
-                }
-
-                this.displayWebView(this.getWebviewContent(documentationPath));
-                this.webview.webview.postMessage({
-                    command: "scrollTo",
-                    anchor: anchor
-                });
-
-                this.handleEvents();
+            commands.registerCommand("mjml.searchInDocumentation", () => {
+                this.searchInDocumentation();
             })
         );
-    }
-
-    private handleEvents(): void {
-        // Handle messages from the webview
-        this.webview.webview.onDidReceiveMessage((message: WebviewMessage) => {
-            if (message.command == "openExample") {
-                this.openExample(message.data);
-            }
-        }, undefined, this.context.subscriptions);
-    }
-
-    private async openExample(fileName: string): Promise<void> {
-        let file: string = path.join(__dirname, "../documentation/examples/", `${fileName}.mjml`);
-
-        if (file && fs.existsSync(file) && fs.statSync(file).isFile()) {
-            let document: vscode.TextDocument = await vscode.workspace.openTextDocument({
-                content: fs.readFileSync(file, "utf8"),
-                language: "mjml"
-            });
-
-            await vscode.window.showTextDocument(document, {
-                viewColumn: vscode.ViewColumn.One
-            });
-
-            await vscode.commands.executeCommand("mjml.previewToSide");
-        }
-    }
-
-    private displayWebView(content: string): void {
-        if (!this.webview) {
-            this.webview = vscode.window.createWebviewPanel("mjml-documentation", "MJML Documentation", vscode.ViewColumn.Two, {
-                retainContextWhenHidden: true,
-                enableFindWidget: true,
-                enableScripts: true,
-                localResourceRoots: [
-                    vscode.Uri.parse(this.context.extensionPath)
-                ]
-            });
-
-            this.webview.webview.html = content;
-
-            this.webview.onDidDispose(() => {
-                this.webview = undefined;
-            });
-        }
-    }
-
-    private getWebviewContent(filePath: string): string {
-        if (!this.content) {
-            let rootPath: string = vscode.Uri.parse(path.join(this.context.extensionPath, "documentation")).with({ scheme: "vscode-resource" }).toString();
-            this.content = fs.readFileSync(filePath).toString().replace(/{{root}}/gi, rootPath);
-        }
-
-        return this.content;
     }
 
     public dispose(): void {
         if (this.webview !== undefined) {
             this.webview.dispose();
+            this.webviewViewColumn = ViewColumn.Two;
+        }
+    }
+
+    private displayWebView(): void {
+        if (!this.webview) {
+            const documentationPath: string = joinPath(__dirname, "../documentation/documentation.html");
+            if (!documentationPath || !existsSync(documentationPath) || !statSync(documentationPath).isFile()) {
+                return;
+            }
+
+            this.webview = window.createWebviewPanel("mjml-documentation", "MJML Documentation", ViewColumn.Two, {
+                enableFindWidget: true,
+                enableScripts: true,
+                localResourceRoots: [
+                    Uri.parse(this.context.extensionPath)
+                ],
+                retainContextWhenHidden: true
+            });
+
+            this.webview.webview.html = this.getWebviewContent(documentationPath);
+
+            this.webview.onDidChangeViewState(() => {
+                if (this.webview && this.webviewViewColumn !== this.webview.viewColumn) {
+                    this.webviewViewColumn = this.webview.viewColumn;
+                }
+            });
+
+            this.webview.onDidDispose(() => {
+                this.webview = undefined;
+                this.webviewViewColumn = ViewColumn.Two;
+            });
         }
 
-        for (let s of this.context.subscriptions) {
-            s.dispose();
+        this.webview.reveal(this.webviewViewColumn);
+
+        this.handleEvents();
+    }
+
+    private getWebviewContent(filePath: string): string {
+        if (!this.content) {
+            const rootPath: string = Uri.parse(joinPath(this.context.extensionPath, "documentation")).with({
+                scheme: "vscode-resource"
+            }).toString();
+
+            this.content = readFileSync(filePath).toString().replace(/{{root}}/gi, rootPath);
+        }
+
+        return this.content;
+    }
+
+    private handleEvents(): void {
+        if (this.webview) {
+            // Handle messages from the webview
+            this.webview.webview.onDidReceiveMessage((message: WebviewMessage) => {
+                if (message.command === "openExample") {
+                    this.openExample(message.data);
+                }
+            }, undefined, this.context.subscriptions);
+        }
+    }
+
+    private searchInDocumentation(): void {
+        const activeTextEditor: TextEditor | undefined = window.activeTextEditor;
+        if (!activeTextEditor) {
+            return;
+        }
+
+        const text: string = activeTextEditor.document.getText(activeTextEditor.selection);
+        let anchor: string = text.replace(/((\/|\<|\>)|^\s+|(\r?\n|\r)|\s.*)/gi, "").replace("mj-", "#mjml-");
+        if (!anchor.startsWith("#mjml-")) {
+            anchor = `#mjml-${anchor}`;
+        }
+
+        this.displayWebView();
+        if (this.webview) {
+            this.webview.webview.postMessage({
+                anchor,
+                command: "scrollTo"
+            });
+        }
+    }
+
+    private async openExample(fileName: string): Promise<void> {
+        const filePath: string = joinPath(__dirname, "../documentation/examples/", `${fileName}.mjml`);
+
+        if (filePath && existsSync(filePath) && statSync(filePath).isFile()) {
+            const document: TextDocument = await workspace.openTextDocument({
+                content: readFileSync(filePath, "utf8"),
+                language: "mjml"
+            });
+
+            await window.showTextDocument(document, {
+                viewColumn: ViewColumn.One
+            });
+
+            await commands.executeCommand("mjml.previewToSide");
         }
     }
 

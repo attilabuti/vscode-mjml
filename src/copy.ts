@@ -1,25 +1,23 @@
-"use strict";
+import { commands, Disposable, window } from "vscode";
 
-import * as vscode from "vscode";
+import { copy } from "copy-paste";
 
-import * as copyPaste from "copy-paste";
+import { renderMJML } from "./helper";
 
-import helper from "./helper";
+export default class Copy {
 
-export default class CopyHTML {
-
-    constructor(subscriptions: vscode.Disposable[]) {
+    constructor(subscriptions: Disposable[]) {
         subscriptions.push(
-            vscode.commands.registerCommand("mjml.copyHTML", () => {
+            commands.registerCommand("mjml.copyHTML", () => {
                 this.copy();
             })
         );
     }
 
     private copy(): void {
-        helper.renderMJML((content: string) => {
-            copyPaste.copy(content, () => {
-                vscode.window.showInformationMessage("Copied!");
+        renderMJML((content: string) => {
+            copy(content, () => {
+                window.showInformationMessage("Copied!");
             });
         });
     }

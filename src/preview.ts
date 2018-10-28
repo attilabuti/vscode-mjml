@@ -1,86 +1,85 @@
-"use strict";
+import { basename } from "path";
+import { commands, Disposable, ExtensionContext, TextDocument, TextDocumentChangeEvent, TextEditor, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 
-import * as vscode from "vscode";
-import * as path from "path";
+import { fixImages, isMJMLFile, mjmlToHtml } from "./helper";
 
-import helper from "./helper";
+export default class Preview {
 
-export default class PreviewManager {
-
-    private webview: vscode.WebviewPanel | undefined;
-    private subscriptions: vscode.Disposable[];
-    private previewOpen: boolean = false;
     private openedDocuments: string[] = [];
+    private previewOpen: boolean = false;
+    private subscriptions: Disposable[];
+    private webview: WebviewPanel | undefined;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: ExtensionContext) {
         this.subscriptions = context.subscriptions;
 
         this.subscriptions.push(
-            vscode.commands.registerCommand("mjml.previewToSide", () => {
-                this.previewOpen = true;
-                this.displayWebView(this.getWebviewContent());
-            }),
-
-            vscode.workspace.onDidOpenTextDocument((document?: vscode.TextDocument) => {
-                if (this.previewOpen && vscode.workspace.getConfiguration("mjml").autoPreview) {
-                    if (document) {
-                        if (document.languageId == "mjml") {
-                            this.displayWebView(this.getWebviewContent(document));
-                        }
-                    }
+            commands.registerCommand("mjml.previewToSide", () => {
+                if (window.activeTextEditor) {
+                    this.previewOpen = true;
+                    this.displayWebView(window.activeTextEditor.document);
+                } else {
+                    window.showErrorMessage("Active editor doesn't show a MJML document.");
                 }
             }),
 
-            vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
-                if (this.previewOpen && vscode.workspace.getConfiguration("mjml").autoPreview) {
-                    if (editor) {
-                        if (editor.document.languageId == "mjml") {
-                            this.displayWebView(this.getWebviewContent(editor.document));
-                        }
-                    }
+            workspace.onDidOpenTextDocument((document?: TextDocument) => {
+                if (document && this.previewOpen && workspace.getConfiguration("mjml").autoPreview) {
+                    this.displayWebView(document);
                 }
             }),
 
-            vscode.workspace.onDidCloseTextDocument((document?: vscode.TextDocument) => {
-                if (this.previewOpen) {
-                    if (document) {
-                        this.removeDocument(document.fileName);
-
-                        if (this.openedDocuments.length == 0 && vscode.workspace.getConfiguration("mjml").autoClosePreview) {
-                            this.webview.dispose();
-                        }
-                    }
+            window.onDidChangeActiveTextEditor((editor?: TextEditor) => {
+                if (editor && this.previewOpen && workspace.getConfiguration("mjml").autoPreview) {
+                    this.displayWebView(editor.document);
                 }
             }),
 
-            vscode.workspace.onDidChangeTextDocument((event?: vscode.TextDocumentChangeEvent) => {
-                if (this.previewOpen && vscode.workspace.getConfiguration("mjml").updateWhenTyping) {
-                    if (event) {
-                        if (event.document.languageId == "mjml") {
-                            this.displayWebView(this.getWebviewContent(event.document));
-                        }
-                    }
+            workspace.onDidChangeTextDocument((event?: TextDocumentChangeEvent) => {
+                if (event && this.previewOpen && workspace.getConfiguration("mjml").updateWhenTyping) {
+                    this.displayWebView(event.document);
                 }
             }),
 
-            vscode.workspace.onDidSaveTextDocument((document?: vscode.TextDocument) => {
-                if (this.previewOpen && document) {
-                    if (document.languageId == "mjml") {
-                        this.displayWebView(this.getWebviewContent(document));
+            workspace.onDidSaveTextDocument((document?: TextDocument) => {
+                if (document && this.previewOpen) {
+                    this.displayWebView(document);
+                }
+            }),
+
+            workspace.onDidCloseTextDocument((document?: TextDocument) => {
+                if (document && this.previewOpen && this.webview) {
+                    this.removeDocument(document.fileName);
+
+                    if (this.openedDocuments.length === 0 && workspace.getConfiguration("mjml").autoClosePreview) {
+                        this.dispose();
                     }
                 }
             })
         );
     }
 
-    private displayWebView(content: string): void {
-        let label: string = "MJML Preview";
-        if (vscode.window.activeTextEditor.document) {
-            label = `MJML Preview - ${path.basename(vscode.window.activeTextEditor.document.fileName)}`;
+    public dispose(): void {
+        if (this.webview !== undefined) {
+            this.webview.dispose();
+        }
+    }
+
+    private displayWebView(document: TextDocument): void {
+        if (!isMJMLFile(document)) {
+            return;
         }
 
+        const activeTextEditor: TextEditor | undefined = window.activeTextEditor;
+        if (!activeTextEditor || !activeTextEditor.document) {
+            return;
+        }
+
+        const content: string = this.getContent(document);
+        const label: string = `MJML Preview - ${basename(activeTextEditor.document.fileName)}`;
+
         if (!this.webview) {
-            this.webview = vscode.window.createWebviewPanel("mjml-preview", label, vscode.ViewColumn.Two, {
+            this.webview = window.createWebviewPanel("mjml-preview", label, ViewColumn.Two, {
                 retainContextWhenHidden: true
             });
 
@@ -91,35 +90,40 @@ export default class PreviewManager {
                 this.previewOpen = false;
             }, null, this.subscriptions);
 
-            if (vscode.workspace.getConfiguration("mjml").preserveFocus) {
+            if (workspace.getConfiguration("mjml").preserveFocus) {
                 // Preserve focus of Text Editor after preview open
-                vscode.window.showTextDocument(vscode.window.activeTextEditor.document, vscode.ViewColumn.One);
+                window.showTextDocument(activeTextEditor.document, ViewColumn.One);
             }
-        }
-        else {
+        } else {
             this.webview.title = label;
             this.webview.webview.html = content;
         }
     }
 
-    private getWebviewContent(document?: vscode.TextDocument): string {
-        let previewDocument: vscode.TextDocument;
-        if (document) {
-            previewDocument = document;
-        }
-        else {
-            previewDocument = vscode.window.activeTextEditor.document;
-        }
-
-        let html: string = helper.mjml2html(previewDocument.getText(), false, false, previewDocument.uri.fsPath, "skip").html;
+    private getContent(document: TextDocument): string {
+        const html: string = mjmlToHtml(document.getText(), false, false, document.uri.fsPath, "skip").html;
 
         if (html) {
-            this.addDocument(previewDocument.fileName);
+            this.addDocument(document.fileName);
 
-            return helper.setBackgroundColor(helper.fixLinks(html, previewDocument.uri.fsPath));
+            return this.setBackgroundColor(fixImages(html, document.uri.fsPath));
         }
 
         return this.error("Active editor doesn't show a MJML document.");
+    }
+
+    private setBackgroundColor(html: string): string {
+        if (workspace.getConfiguration("mjml").previewBackgroundColor) {
+            const tmp: RegExpExecArray | null = /<.*head.*>/i.exec(html);
+
+            if (tmp && tmp[0]) {
+                html = html.replace(tmp[0], `${tmp[0]}\n<style>
+                    html, body { background-color: ${workspace.getConfiguration("mjml").previewBackgroundColor}; }
+                </style>`);
+            }
+        }
+
+        return html;
     }
 
     private error(error: string): string {
@@ -127,23 +131,13 @@ export default class PreviewManager {
     }
 
     private addDocument(fileName: string): void {
-        if (this.openedDocuments.indexOf(fileName) == -1) {
+        if (this.openedDocuments.indexOf(fileName) === -1) {
             this.openedDocuments.push(fileName);
         }
     }
 
     private removeDocument(fileName: string): void {
-        this.openedDocuments = this.openedDocuments.filter(e => e !== fileName);
-    }
-
-    public dispose(): void {
-        if (this.webview !== undefined) {
-            this.webview.dispose();
-        }
-
-        for (let s of this.subscriptions) {
-            s.dispose();
-        }
+        this.openedDocuments = this.openedDocuments.filter((file: string) => file !== fileName);
     }
 
 }

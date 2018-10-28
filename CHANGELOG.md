@@ -2,6 +2,15 @@
 All notable changes to the "mjml" extension will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+### [1.6.0] (2018-10-28)
+* [new] Configuration property `mjml.templateGallery`: Show the template gallery instead of quick pick.
+* [new] Configuration property `mjml.templateGalleryAutoClose`: Automatically close template gallery when selecting a template.
+* [#42](https://github.com/attilabuti/vscode-mjml/issues/42) [#43](https://github.com/attilabuti/vscode-mjml/issues/43): fixed beautify issues.
+* [new] [#47](https://github.com/attilabuti/vscode-mjml/issues/47) `MJML: Version`: Shows the version of MJML.
+* .mjmlconfig is working again.
+* MJML 4.2.0
+* Other improvements and bugfixes.
+
 ### [1.5.1] (2018-10-03)
 * [#41](https://github.com/attilabuti/vscode-mjml/issues/41): fixed preview issue.
 * [#40](https://github.com/attilabuti/vscode-mjml/issues/40): fixed comment issue.

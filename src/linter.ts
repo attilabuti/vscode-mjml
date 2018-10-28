@@ -1,78 +1,87 @@
-"use strict";
+import { Diagnostic, DiagnosticCollection, DiagnosticSeverity, Disposable, languages, Position, Range, TextDocument, TextDocumentChangeEvent, TextEditor, window, workspace } from "vscode";
 
-import * as vscode from "vscode";
+import { getPath, mjmlToHtml } from "./helper";
 
-import helper from "./helper";
+export default class Linter {
 
-export default class MJMLLintingProvider {
+    private diagnosticCollection!: DiagnosticCollection;
 
-    private command: vscode.Disposable;
-    private diagnosticCollection: vscode.DiagnosticCollection;
+    constructor(subscriptions: Disposable[]) {
+        if (workspace.getConfiguration("mjml").lintEnable) {
+            this.diagnosticCollection = languages.createDiagnosticCollection("mjml");
 
-    constructor(subscriptions: vscode.Disposable[]) {
-        this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
+            subscriptions.push(
+                this.diagnosticCollection,
 
-        vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
-            if (editor) {
-                if (helper.isMJMLFile(editor.document)) {
-                    this.doMJMllint(editor.document);
-                }
-            }
-        }, this, subscriptions);
+                window.onDidChangeActiveTextEditor((editor?: TextEditor) => {
+                    if (editor && editor.document) {
+                        this.lintDocument(editor.document);
+                    }
+                }),
 
-        vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
-            if (vscode.workspace.getConfiguration("mjml").lintWhenTyping) {
-                this.doMJMllint(event.document);
-            }
-        }, this, subscriptions);
+                workspace.onDidChangeTextDocument((event?: TextDocumentChangeEvent) => {
+                    if (event && event.document && workspace.getConfiguration("mjml").lintWhenTyping) {
+                        this.lintDocument(event.document);
+                    }
+                }),
 
-        vscode.workspace.onDidOpenTextDocument(this.doMJMllint, this, subscriptions);
-        vscode.workspace.onDidSaveTextDocument(this.doMJMllint, this, subscriptions);
+                workspace.onDidCloseTextDocument((document?: TextDocument) => {
+                    if (document) {
+                        this.diagnosticCollection.delete(document.uri);
+                    }
+                }),
 
-        vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) => {
-            this.diagnosticCollection.delete(document.uri);
-        }, null, subscriptions);
+                workspace.onDidOpenTextDocument((document?: TextDocument) => {
+                    if (document) {
+                        this.lintDocument(document);
+                    }
+                }),
 
-        // Lint all open mjml documents
-        vscode.workspace.textDocuments.forEach(this.doMJMllint, this);
+                workspace.onDidSaveTextDocument((document?: TextDocument) => {
+                    if (document) {
+                        this.lintDocument(document);
+                    }
+                })
+            );
+
+            // Lint all open mjml documents
+            workspace.textDocuments.forEach(this.lintDocument, this);
+        }
     }
 
     public dispose(): void {
         this.diagnosticCollection.clear();
         this.diagnosticCollection.dispose();
-        this.command.dispose();
     }
 
-    private doMJMllint(textDocument: vscode.TextDocument): void {
+    private lintDocument(textDocument: TextDocument): void {
         if (textDocument.languageId !== "mjml") {
             return;
         }
 
-        let diagnostics: vscode.Diagnostic[] = [];
+        const diagnostics: Diagnostic[] = [];
 
         try {
-            let filePath: string = helper.getPath();
-            let { html, errors } = helper.mjml2html(vscode.window.activeTextEditor.document.getText(), false, false, filePath, "strict");
+            const errors: any = mjmlToHtml(textDocument.getText(), false, false, getPath(), "strict").errors;
 
-            errors.forEach((err: any) => {
-                let line: number = err.line - 1;
-                let currentLine: string = vscode.window.activeTextEditor.document.lineAt(line).text;
+            if (errors && errors[0]) {
+                errors[0].errors.forEach((error: any) => {
+                    const line: number = error.line - 1;
+                    const currentLine: string = textDocument.lineAt(line).text;
 
-                let start: vscode.Position = new vscode.Position(line, currentLine.indexOf("<"));
-                let end: vscode.Position = new vscode.Position(line, currentLine.length);
-
-                let diagnostic: vscode.Diagnostic = new vscode.Diagnostic(
-                    new vscode.Range(start, end),
-                    err.message,
-                    vscode.DiagnosticSeverity.Error
-                );
-
-                diagnostics.push(diagnostic);
-            });
+                    diagnostics.push(new Diagnostic(
+                        new Range(
+                            new Position(line, currentLine.indexOf("<")),
+                            new Position(line, currentLine.length)
+                        ),
+                        error.message,
+                        DiagnosticSeverity.Error
+                    ));
+                });
+            }
 
             this.diagnosticCollection.set(textDocument.uri, diagnostics);
-        }
-        catch (err) {
+        } catch (error) {
             this.diagnosticCollection.set(textDocument.uri, diagnostics);
         }
     }

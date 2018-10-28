@@ -1,148 +1,157 @@
-"use strict";
+import { createReadStream, existsSync, readFileSync, statSync } from "fs";
+import { basename, dirname, join as joinPath } from "path";
+import { commands, Disposable, ProgressLocation, window, workspace } from "vscode";
 
-import * as vscode from "vscode";
-import * as path from "path";
-import * as fs from "fs";
+import { getType as getMimeType } from "mime";
+import { connect as mailjetConnect } from "node-mailjet";
+import { createTransport, getTestMessageUrl } from "nodemailer";
 
-import * as mailjet from "node-mailjet";
-import * as nodemailer from "nodemailer";
-import * as mime from "mime";
-import isUrl = require("is-url");
+import { getPath, renderMJML } from "./helper";
 
-import helper from "./helper";
+export default class Email {
 
-export default class SendEmail {
-
-    constructor(subscriptions: vscode.Disposable[]) {
+    constructor(subscriptions: Disposable[]) {
         subscriptions.push(
-            vscode.commands.registerCommand("mjml.sendEmail", () => {
-                helper.renderMJML((content: string) => {
-                    this.sendEmail(content, vscode.window.activeTextEditor.document.uri.fsPath);
+            commands.registerCommand("mjml.sendEmail", () => {
+                renderMJML((content: string) => {
+                    this.sendEmail(content, getPath());
                 });
             })
         );
     }
 
     private sendEmail(content: string, mjmlPath: string): void {
-        let mailer: string = vscode.workspace.getConfiguration("mjml").mailer.toLowerCase();
+        const mailer: string = workspace.getConfiguration("mjml").mailer.toLowerCase();
+        const defaultRecipients: string = workspace.getConfiguration("mjml").mailRecipients;
 
-        let defaultSubject: string = vscode.workspace.getConfiguration("mjml").mailSubject;
-        let defaultRecipients: string = vscode.workspace.getConfiguration("mjml").mailRecipients;
-
-        vscode.window.showInputBox({
-            prompt: "Subject",
+        window.showInputBox({
             placeHolder: "Type a subject for the email.",
-            value: defaultSubject
-        }).then((subject: string) => {
+            prompt: "Subject",
+            value: workspace.getConfiguration("mjml").mailSubject
+        }).then((subject: string | undefined) => {
             if (!subject) {
                 return;
             }
 
-            vscode.window.showInputBox({
-                prompt: "Recipients",
+            window.showInputBox({
                 placeHolder: "Comma-separated list of recipients.",
+                prompt: "Recipients",
                 value: defaultRecipients
-            }).then((recipients: string) => {
+            }).then(async (recipients: string | undefined) => {
                 if (!recipients) {
                     return;
                 }
 
-                recipients = (recipients ? recipients : defaultRecipients).replace(/\s/g, "");
+                await window.withProgress({
+                    cancellable: false,
+                    location: ProgressLocation.Notification,
+                    title: `Sending email...`
+                }, async () => {
+                    recipients = (recipients ? recipients : defaultRecipients).replace(/\s/g, "");
 
-                let attachments: any[] = this.createAttachments(content, mjmlPath, mailer);
-                content = this.replaceImages(content, attachments, mailer);
+                    const attachments: Attachments[] = this.createAttachments(content, mjmlPath, mailer);
+                    content = this.replaceImages(content, attachments, mailer);
 
-                if (mailer == "nodemailer") {
-                    this.sendEmailWithNodemailer(subject, recipients, content, attachments);
-                }
-                else {
-                    this.sendEmailWithMailjet(subject, recipients, content, attachments);
-                }
+                    if (mailer === "nodemailer") {
+                        await this.nodemailer(subject, recipients, content, attachments);
+                    } else {
+                        await this.mailjet(subject, recipients, content, attachments);
+                    }
+                });
             });
         });
     }
 
-    private sendEmailWithNodemailer(subject: string, recipients: string, content: string, attachments: any[]): void {
-        let transportOptions: any = vscode.workspace.getConfiguration("mjml").nodemailer;
+    private async nodemailer(
+        subject: string, recipients: string, html: string, attachments: Attachments[]
+    ): Promise<void> {
+        const transportOptions: any = workspace.getConfiguration("mjml").nodemailer;
 
-        nodemailer.createTransport(transportOptions).sendMail({
-            from: vscode.workspace.getConfiguration("mjml").mailFromName + " <" + vscode.workspace.getConfiguration("mjml").mailSender + ">",
-            to: recipients,
-            subject: subject,
-            html: content,
-            attachments: attachments
-        }, (err: Error, info: any) => {
-            if (err) {
-                vscode.window.showErrorMessage(err.message);
-                return;
-            }
+        await createTransport(transportOptions).sendMail({
+            attachments,
+            from: {
+                address: workspace.getConfiguration("mjml").mailSender,
+                name: workspace.getConfiguration("mjml").mailFromName
+            },
+            html,
+            subject,
+            to: recipients
+        }).then((info: any) => {
+            window.showInformationMessage("Mail has been sent successfully.");
 
-            vscode.window.showInformationMessage("Mail has been sent successfully.");
-
-            if (transportOptions.host && transportOptions.host == "smtp.ethereal.email") {
-                let url: (string | boolean) = nodemailer.getTestMessageUrl(info);
+            if (transportOptions.host && transportOptions.host === "smtp.ethereal.email") {
+                const url: string | boolean = getTestMessageUrl(info);
 
                 if (url) {
-                    vscode.window.showInformationMessage(`Preview URL: ${url}`);
+                    window.showInformationMessage(`Preview URL: ${url}`);
                 }
+            }
+        }).catch((error: Error | null) => {
+            if (error) {
+                window.showErrorMessage(error.message);
+
+                return;
             }
         });
     }
 
-    private sendEmailWithMailjet(subject: string, recipients: string, content: string, attachments: any[]): void {
-        let recipientList: Array<{ Email: string }> = recipients.split(",").map((emailAddress: string) => {
+    private async mailjet(
+        subject: string, recipients: string, html: string, attachments: Attachments[]
+    ): Promise<void> {
+        const recipientList: Array<{ Email: string }> = recipients.split(",").map((emailAddress: string) => {
             return { Email: emailAddress };
         });
 
-        mailjet.connect(
-            vscode.workspace.getConfiguration("mjml").mailjetAPIKey,
-            vscode.workspace.getConfiguration("mjml").mailjetAPISecret
+        await mailjetConnect(
+            workspace.getConfiguration("mjml").mailjetAPIKey,
+            workspace.getConfiguration("mjml").mailjetAPISecret
         ).post("send").request({
-            FromEmail: vscode.workspace.getConfiguration("mjml").mailSender,
-            FromName: vscode.workspace.getConfiguration("mjml").mailFromName,
-            Subject: subject,
-            Recipients: recipientList,
-            "Html-part": content,
-            Inline_attachments: attachments
-        }).then((result: object) => {
-            vscode.window.showInformationMessage("Mail has been sent successfully.");
-        }).catch((err: any) => {
-            vscode.window.showErrorMessage(err.message);
+            "FromEmail": workspace.getConfiguration("mjml").mailSender,
+            "FromName": workspace.getConfiguration("mjml").mailFromName,
+            "Html-part": html,
+            "Inline_attachments": attachments,
+            "Recipients": recipientList,
+            "Subject": subject
+        }).then(() => {
+            window.showInformationMessage("Mail has been sent successfully.");
+        }).catch((error: any) => {
+            window.showErrorMessage(error.message);
         });
     }
 
-    private createAttachments(content: string, mjmlPath: string, mailer?: string): any[] {
-        let imgPaths: string[] = [];
+    private createAttachments(content: string, mjmlPath: string, mailer?: string): Attachments[] {
+        const imgPaths: string[] = [];
 
-        let match: RegExpExecArray;
-        let pattern: RegExp = /<img\s+[^>]*?src=("|')([^"']+)\1/g;
+        let match: RegExpExecArray | null;
+        const pattern: RegExp = /<img\s+[^>]*?src=("|')([^"']+)\1/g;
         while (match = pattern.exec(content)) {
             imgPaths.push(match[2]);
         }
 
-        let attachments: any[] = [];
-        if (imgPaths) {
-            for (let i = 0; i < imgPaths.length; i++) {
-                if (imgPaths[i] && !isUrl(imgPaths[i])) {
-                    let filePath: string = path.join(path.dirname(mjmlPath), imgPaths[i]);
+        const attachments: Attachments[] = [];
+        if (!imgPaths) {
+            return attachments;
+        }
 
-                    if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-                        if (mailer == "nodemailer") {
-                            attachments.push({
-                                originalPath: imgPaths[i],
-                                filename: path.basename(filePath),
-                                content: fs.createReadStream(filePath),
-                                cid: Math.random().toString(36).substring(2) + i
-                            });
-                        }
-                        else {
-                            attachments.push({
-                                originalPath: imgPaths[i],
-                                "Content-type": mime.getType(filePath),
-                                Filename: i + "_" + path.basename(filePath),
-                                content: fs.readFileSync(filePath).toString("base64")
-                            });
-                        }
+        for (let i = 0; i < imgPaths.length; i++) {
+            if (imgPaths[i] && !isURL(imgPaths[i])) {
+                const filePath: string = joinPath(dirname(mjmlPath), imgPaths[i]);
+
+                if (filePath && existsSync(filePath) && statSync(filePath).isFile()) {
+                    if (mailer === "nodemailer") {
+                        attachments.push({
+                            cid: Math.random().toString(36).substring(2) + i,
+                            content: createReadStream(filePath),
+                            filename: basename(filePath),
+                            originalPath: imgPaths[i]
+                        });
+                    } else {
+                        attachments.push({
+                            "Content-type": getMimeType(filePath),
+                            "Filename": i + "_" + basename(filePath),
+                            "content": readFileSync(filePath).toString("base64"),
+                            "originalPath": imgPaths[i]
+                        });
                     }
                 }
             }
@@ -151,12 +160,12 @@ export default class SendEmail {
         return attachments;
     }
 
-    private replaceImages(content: string, attachments: any[], mailer?: string): string {
+    private replaceImages(content: string, attachments: Attachments[], mailer?: string): string {
         if (attachments) {
-            for (let i = 0; i < attachments.length; i++) {
+            for (const attachment of attachments) {
                 content = content.replace(
-                    "src=\"" + attachments[i].originalPath + "\"",
-                    "src=\"cid:" + ((mailer == "nodemailer") ? attachments[i].cid : attachments[i].Filename) + "\""
+                    `src="${attachment.originalPath}"`,
+                    `src="cid:${((mailer === "nodemailer") ? attachment.cid : attachment.Filename)}"`
                 );
             }
         }
@@ -164,4 +173,38 @@ export default class SendEmail {
         return content;
     }
 
+}
+
+/**
+ * Regular Expression for URL validation
+ * Author: Diego Perini
+ * License: MIT
+ * https://gist.github.com/dperini/729294
+ */
+function isURL(url: string): boolean {
+    return new RegExp(
+        "^" +
+            "(?:(?:(?:https?|ftp):)?\\/\\/)" +
+            "(?:\\S+(?::\\S*)?@)?" +
+            "(?:" +
+                "(?!(?:10|127)(?:\\.\\d{1,3}){3})" +
+                "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" +
+                "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" +
+                "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
+                "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
+                "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
+            "|" +
+                "(?:" +
+                    "(?:" +
+                        "[a-z0-9\\u00a1-\\uffff]" +
+                        "[a-z0-9\\u00a1-\\uffff_-]{0,62}" +
+                    ")?" +
+                "[a-z0-9\\u00a1-\\uffff]\\." +
+                ")+" +
+                "(?:[a-z\\u00a1-\\uffff]{2,}\\.?)" +
+            ")" +
+            "(?::\\d{2,5})?" +
+            "(?:[/?#]\\S*)?" +
+        "$", "i"
+    ).test(url);
 }

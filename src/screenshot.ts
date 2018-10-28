@@ -1,151 +1,205 @@
-"use strict";
+import { basename, join as joinPath, resolve as resolvePath } from "path";
+import { commands, Disposable, ProgressLocation, Uri, window, workspace } from "vscode";
 
-import * as vscode from "vscode";
-import * as path from "path";
+import { commands as npmCommands, load as load } from "npm";
+import * as phantom from "phantom";
+import { platform as phantomJs } from "phantomjs-prebuilt";
 
-import * as webshot from "ab-webshot";
-
-import helper from "./helper";
+import { getPath, renderMJML } from "./helper";
 
 export default class Screenshot {
 
-    private processPlatform: string;
-    private phantomJsPlatform: string;
-    private phantomJSBuilt: any;
+    // Gets a value indicating whether PhantomJS could be built
+    private phantomJSBuilt: any = undefined;
+    private phantomJsPlatform: string = "";
+    private processPlatform: string = "";
 
-    constructor(context: vscode.ExtensionContext, processPlatform: string, phantomJsPlatform: string, phantomJSBuilt: any) {
-        this.processPlatform = processPlatform;
-        this.phantomJsPlatform = phantomJsPlatform;
-        this.phantomJSBuilt = phantomJSBuilt;
+    constructor(subscriptions: Disposable[]) {
+        // Rebuilding PhantomJS if required
+        if (phantomJs !== process.platform) {
+            this.rebuild();
+        } else {
+            this.phantomJsPlatform = phantomJs;
+            this.processPlatform = process.platform;
 
-        context.subscriptions.push(
-            vscode.commands.registerCommand("mjml.screenshot", () => {
-                this.renderMJML(false);
-            }),
+            subscriptions.push(
+                commands.registerCommand("mjml.screenshot", () => {
+                    this.renderMJML(false);
+                }),
 
-            vscode.commands.registerCommand("mjml.multipleScreenshots", () => {
-                this.renderMJML(true);
-            })
-        );
+                commands.registerCommand("mjml.multipleScreenshots", () => {
+                    this.renderMJML(true);
+                })
+            );
+        }
+    }
+
+    private async rebuild(): Promise<void> {
+        await window.withProgress({
+            cancellable: false,
+            location: ProgressLocation.Notification,
+            title: `MJML needs to be rebuilt for your current platform. Please wait for the installation to finish...`
+        }, async () => {
+            return new Promise((resolve, reject) => {
+                process.chdir(joinPath(__dirname, ".."));
+
+                load({
+                    loglevel: "silent"
+                }, () => {
+                    npmCommands.rebuild(["phantomjs-prebuilt"], (error: any) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            }).then(() => {
+                this.phantomJSBuilt = true;
+                window.showInformationMessage(
+                    "MJML's been updated. Please restart VSCode in order to continue using MJML."
+                );
+            }).catch(() => {
+                this.phantomJSBuilt = false;
+                window.showErrorMessage(
+                    "MJML couldn't build the proper version of PhantomJS. Restart VSCode in order to try it again."
+                );
+            });
+        });
     }
 
     private renderMJML(multiple: boolean): void {
-        if (this.phantomJsPlatform != this.processPlatform || this.phantomJSBuilt != undefined) {
+        if (this.phantomJsPlatform !== this.processPlatform || this.phantomJSBuilt !== undefined) {
             if (this.phantomJSBuilt) {
-                vscode.window.showInformationMessage("MJML's been updated. Please restart VSCode in order to continue using MJML.");
+                window.showInformationMessage(
+                    "MJML's been updated. Please restart VSCode in order to continue using MJML."
+                );
+            } else {
+                window.showWarningMessage(
+                    "MJML couldn't build the proper version of PhantomJS. Restart VSCode in order to try it again."
+                );
             }
-            else {
-                vscode.window.showWarningMessage("MJML couldn't build the propper version of PhantomJS. Restart VSCode in order to try it again.");
-            }
-        }
-        else {
-            helper.renderMJML((content: string) => {
-                let defaultWidth: number = vscode.workspace.getConfiguration("mjml").screenshotWidth;
+        } else {
+            renderMJML((content: string) => {
+                let defaultWidth: string = workspace.getConfiguration("mjml").screenshotWidth.toString();
 
-                if (!multiple) {
-                    vscode.window.showInputBox({
-                        prompt: "Width",
-                        placeHolder: `Enter image width (${defaultWidth}px).`,
-                        value: defaultWidth.toString()
-                    }).then((width: any) => {
-                        if (!width) {
-                            return;
-                        }
+                let placeHolder: string = `Enter image width (${defaultWidth}).`;
+                if (multiple) {
+                    defaultWidth = workspace.getConfiguration("mjml").screenshotWidths.join(", ");
+                    placeHolder = `Comma-separated list of image widths (${defaultWidth}).`;
+                }
 
-                        width = parseInt(width.replace(/[^0-9\.]+/g, ""));
-                        if (!width || Number.isNaN(parseInt(width))) {
-                            width = defaultWidth;
-                        }
+                window.showInputBox({
+                    placeHolder,
+                    prompt: "Width",
+                    value: defaultWidth
+                }).then((width: string | undefined) => {
+                    if (!width) {
+                        return;
+                    }
 
-                        this.showSaveDialog(multiple, content, width);
+                    const imgWidth: Array<number | undefined> = width.split(",").map((tmpWidth: string) => {
+                        return (tmpWidth) ? parseInt(tmpWidth, 10) : undefined;
+                    }).filter((tmpWidth: number | undefined) => {
+                        return (tmpWidth) ? tmpWidth : undefined;
                     });
-                }
-                else {
-                    this.showSaveDialog(multiple, content, defaultWidth);
-                }
+
+                    if (imgWidth.length > 0) {
+                        this.showSaveDialog(multiple, content, imgWidth);
+                    }
+                });
             }, true);
         }
     }
 
-    private showSaveDialog(multiple: boolean, content: string, width: number): void {
-        let defaultFileName: string = path.basename(vscode.window.activeTextEditor.document.uri.fsPath).replace(/\.[^\.]+$/, "");
+    private showSaveDialog(multiple: boolean, content: string, width: Array<number | undefined>): void {
+        const defaultFileName: string = basename(getPath()).replace(/\.[^\.]+$/, "");
 
         let screenshotType: string = "png";
-        if (["png", "jpg", "jpeg"].indexOf(vscode.workspace.getConfiguration("mjml").screenshotType)) {
-            screenshotType = vscode.workspace.getConfiguration("mjml").screenshotType;
+        if (["png", "jpg", "jpeg"].indexOf(workspace.getConfiguration("mjml").screenshotType)) {
+            screenshotType = workspace.getConfiguration("mjml").screenshotType;
         }
 
-        if (vscode.workspace.getConfiguration("mjml").showSaveDialog) {
-            vscode.window.showSaveDialog({
-                defaultUri: vscode.Uri.file(path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, `../${defaultFileName}.${screenshotType}`)),
+        if (workspace.getConfiguration("mjml").showSaveDialog) {
+            window.showSaveDialog({
+                defaultUri: Uri.file(resolvePath(getPath(), `../${defaultFileName}.${screenshotType}`)),
                 filters: {
                     Images: ["png", "jpg", "jpeg"]
                 }
-            }).then((fileUri: vscode.Uri) => {
+            }).then((fileUri: Uri | undefined) => {
                 if (fileUri) {
-                    this.takeScreenshot(multiple, fileUri.fsPath, content, width, screenshotType);
+                    this.screenshot(multiple, fileUri.fsPath, content, width, screenshotType);
                 }
             });
-        }
-        else {
-            vscode.window.showInputBox({
-                prompt: "Filename",
+        } else {
+            window.showInputBox({
                 placeHolder: "Enter a filename.",
-                value: defaultFileName + "." + screenshotType
-            }).then((fileName: string) => {
+                prompt: "Filename",
+                value: `${defaultFileName}.${screenshotType}`
+            }).then((fileName: string | undefined) => {
                 if (!fileName) {
                     return;
                 }
 
                 fileName = fileName ? fileName.replace(/\.[^\.]+$/, "") : defaultFileName;
-                let file: string = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, `../${fileName}.${screenshotType}`);
+                const file: string = resolvePath(getPath(), `../${fileName}.${screenshotType}`);
 
-                this.takeScreenshot(multiple, file, content, width, screenshotType);
+                this.screenshot(multiple, file, content, width, screenshotType);
             });
         }
     }
 
-    private takeScreenshot(multiple: boolean, file: string, content: string, width: any, screenshotType: string): void {
-        if (multiple) {
-            let width: (string | number)[] = vscode.workspace.getConfiguration("mjml").screenshotWidths;
-            let fileName: string = path.basename(file).split(".").slice(0, -1).join(".");
+    private async screenshot(
+        multiple: boolean, file: string, html: string, width: Array<number | undefined>, type: string
+    ): Promise<void> {
+        await window.withProgress({
+            cancellable: false,
+            location: ProgressLocation.Notification,
+            title: `Taking ${((multiple) ? "screenshots" : "screenshot")}...`
+        }, async () => {
+            try {
+                const instance = await phantom.create();
+                const page = await instance.createPage();
 
-            if (width) {
-                width.forEach((width: string | number) => {
-                    let tmpFileName: string = fileName + "_" + width;
-                    let file: string = path.resolve(vscode.window.activeTextEditor.document.uri.fsPath, `../${tmpFileName}.${screenshotType}`);
+                await page.setContent(html, "");
+                await page.reload();
 
-                    this.webshot(content, width, file, tmpFileName, screenshotType);
-                });
-            }
-            else {
-                this.webshot(content, width, file, fileName, screenshotType);
-            }
-        }
-        else {
-            this.webshot(content, width, file, file, screenshotType);
-        }
-    }
+                for (const imgWidth of width) {
+                    if (imgWidth && Number.isInteger(imgWidth)) {
+                        let filePath: string;
+                        let imageName: string;
 
-    private webshot(htmlDocument: string, width: any, file: string, fileName: string, screenshotType: string): void {
-        webshot(htmlDocument, file, {
-            screenSize: {
-                width: parseInt(width),
-                height: 480
-            },
-            shotSize: {
-                width: "window",
-                height: "all"
-            },
-            quality: vscode.workspace.getConfiguration("mjml").screenshotQuality,
-            siteType: "html",
-            streamType: screenshotType
-        }, (err: any) => {
-            if (err) {
-                vscode.window.showErrorMessage(err.message);
-            }
-            else {
-                vscode.window.showInformationMessage(`Successfully saved screenshot ${fileName}.${screenshotType}`);
+                        if (multiple) {
+                            const fileName: string =
+                                basename(file).split(".").slice(0, -1).join(".") +
+                                "_" +
+                                imgWidth.toString();
+                            filePath = resolvePath(getPath(), `../${fileName}.${type}`);
+                            imageName = `${fileName}.${type}`;
+                        } else {
+                            filePath = imageName = file;
+                        }
+
+                        await page.property("viewportSize", {
+                            height: 480,
+                            width: imgWidth
+                        });
+
+                        await page.render(filePath, {
+                            quality: workspace.getConfiguration("mjml").screenshotQuality
+                        });
+
+                        window.showInformationMessage(`Successfully saved screenshot ${imageName}`);
+
+                        if (!multiple) {
+                            break;
+                        }
+                    }
+                }
+
+                await instance.exit();
+            } catch (error) {
+                window.showErrorMessage(error.message);
             }
         });
     }
