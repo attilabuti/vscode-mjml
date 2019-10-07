@@ -2,14 +2,14 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "1.7.0",
+    "version": "1.6.0",
     "publisher": "mjmlio",
     "license": "MIT",
     "readme": "README.md",
     "icon": "images/icon.png",
     "author": {
         "name": "MJML",
-        "email": "",
+        "email": "cedric@derniercri.io",
         "url": "https://mjml.io/"
     },
     "homepage": "https://github.com/mjmlio/vscode-mjml#readme",
