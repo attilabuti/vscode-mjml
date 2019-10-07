@@ -41,7 +41,7 @@ export default class Migrate {
             const content: string | undefined = beautifyHTML(mjml);
 
             if (content) {
-                writeFile(file, content, (error: NodeJS.ErrnoException) => {
+                writeFile(file, content, (error: NodeJS.ErrnoException | null) => {
                     if (error) {
                         window.showErrorMessage(error.message);
                     } else {

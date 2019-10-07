@@ -60,7 +60,7 @@ export default class Export {
     }
 
     private writeFile(file: string, content: string): void {
-        writeFile(file, content, (error: NodeJS.ErrnoException) => {
+        writeFile(file, content, (error: NodeJS.ErrnoException | null) => {
             if (error) {
                 window.showErrorMessage(`Could not save the file: ${error.message}`);
             } else {
