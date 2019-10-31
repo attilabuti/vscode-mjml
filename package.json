@@ -2,7 +2,7 @@
     "name": "vscode-mjml",
     "displayName": "MJML",
     "description": "MJML preview, lint, compile for Visual Studio Code.",
-    "version": "1.7.1",
+    "version": "4.5.1",
     "publisher": "mjmlio",
     "license": "MIT",
     "readme": "README.md",
