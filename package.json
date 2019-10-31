@@ -312,8 +312,7 @@
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "tslint": "tslint -c tslint.json src/extension.ts"
+        "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
         "@types/copy-paste": "^1.1.30",
@@ -327,7 +326,6 @@
         "highlight.js": "^9.13.1",
         "markdown-it-anchor": "^5.0.2",
         "markdown-it": "^8.4.2",
-        "tslint": "^5.11.0",
         "typescript": "^3.1.3",
         "vscode": "^1.1.21"
     },
