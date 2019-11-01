@@ -107,6 +107,10 @@ export function getPath(): string {
 }
 
 function getCWD(mjmlPath?: string): string {
+    if (workspace.rootPath) {
+        return workspace.rootPath;
+    }
+
     return (mjmlPath) ? parsePath(mjmlPath).dir : "";
 }
 
