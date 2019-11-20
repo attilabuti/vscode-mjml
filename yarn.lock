@@ -2749,7 +2749,7 @@ mjml-wrapper@4.5.1:
     mjml-core "4.5.1"
     mjml-section "4.5.1"
 
-mjml@^4.5.0:
+mjml@^4.5.1:
   version "4.5.1"
   resolved "https://registry.yarnpkg.com/mjml/-/mjml-4.5.1.tgz#44201d731e9f426f528fa7d39e8d0a666816257c"
   integrity sha512-sQVbQ30UwxMpjzkTPdU9RD5OC9ikEjtZEY+zqAioHXAtEmiO0L0eUdfpcb0ni1pu09hMWU4iqRtOyxLgZIOThg==
