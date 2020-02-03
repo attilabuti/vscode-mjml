@@ -1,3 +1,6 @@
+# This repo is archived
+
+
 # MJML
 MJML preview, lint, compile for Visual Studio Code.
 
