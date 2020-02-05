@@ -4,7 +4,7 @@ import { TextDocument, TextEditor, window, workspace } from "vscode";
 
 import { html as jsBeautify } from "js-beautify";
 import { getExtension, getType as getMimeType } from "mime";
-import mjml2html from "mjml";
+import * as mjml2html from 'mjml'
 
 export function renderMJML(cb: (content: string) => any, fixImg?: boolean, minify?: boolean, beautify?: boolean): void {
     const activeTextEditor: TextEditor | undefined = window.activeTextEditor;
